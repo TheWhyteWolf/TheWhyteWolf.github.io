@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captain Bubble | Operations</title>
+    <style>
+        :root {
+            /* SunVox-inspired muted olive and off-black palette */
+            --bg-color: #121412;
+            --text-color: #7b8c5a;
+            --glow-color: #a4c94b;
+        }
+        body {
+            font-family: "Courier New", Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 4rem 2rem;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            z-index: 10;
+        }
+        h1 {
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--text-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 3rem;
+        }
+        .repo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+        .repo-link {
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+        .repo-link:hover {
+            color: var(--glow-color);
+            text-shadow: 0 0 10px rgba(164, 201, 75, 0.6);
+        }
+        .repo-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0 0 0.5rem 0;
+        }
+        .repo-name::before {
+            content: "> ";
+            opacity: 0.5;
+        }
+        .repo-desc {
+            margin: 0;
+            font-size: 0.95rem;
+            opacity: 0.8;
+            padding-left: 1.5rem;
+            line-height: 1.4;
+        }
+
+        /* ASCII Mouse Trail Subsystem */
+        .ascii-trail {
+            position: absolute;
+            pointer-events: none;
+            color: var(--glow-color);
+            text-shadow: 0 0 8px var(--glow-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: dissipate 0.6s linear forwards;
+            z-index: 1;
+            user-select: none;
+        }
+        @keyframes dissipate {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(20px) scale(0.4); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Archive // Captain Bubble</h1>
+    
+    <div class="repo-list">
+        <a href="https://github.com/TheWhyteWolf/ascii_fluid_mobile" class="repo-link" target="_blank">
+            <p class="repo-name">ascii_fluid_mobile</p>
+            <p class="repo-desc">A fluid simulator drawing in ascii (Mandy's Mobile Version)</p>
+        </a>
+        
+        <a href="https://github.com/TheWhyteWolf/ascii_tube" class="repo-link" target="_blank">
+            <p class="repo-name">ascii_tube</p>
+            <p class="repo-desc">A terminal based youtube viewer that renders 240p videos as ASCII art (python frontend using FFMPEG)</p>
+        </a>
+        
+        <a href="https://github.com/TheWhyteWolf/Moshit" class="repo-link" target="_blank">
+            <p class="repo-name">Moshit</p>
+            <p class="repo-desc">A standalone, cross-platform datamoshing tool — no Adobe, no After Effects plugins, just FFmpeg and Python.</p>
+        </a>
+        
+        <a href="https://github.com/TheWhyteWolf/PsyBGGen" class="repo-link" target="_blank">
+            <p class="repo-name">PsyBGGen</p>
+            <p class="repo-desc">Random Psychedelic background creator, for making swirly messes</p>
+        </a>
+    </div>
+</div>
+
+<script>
+    // Tactical ASCII Particle Generator
+    const asciiChars = ['+', '*', 'x', '~', ':', '.', '@', '#'];
+    
+    document.addEventListener('mousemove', (e) => {
+        // Density throttle: only spawn a character 40% of the time the mouse moves
+        if(Math.random() > 0.4) return; 
+
+        const trail = document.createElement('span');
+        trail.className = 'ascii-trail';
+        trail.innerText = asciiChars[Math.floor(Math.random() * asciiChars.length)];
+        
+        // Offset coordinates so the character centers under the cursor
+        trail.style.left = (e.pageX - 6) + 'px';
+        trail.style.top = (e.pageY - 12) + 'px';
+        
+        document.body.appendChild(trail);
+        
+        // Garbage collection: remove the DOM node after the CSS animation completes
+        setTimeout(() => {
+            trail.remove();
+        }, 600);
+    });
+</script>
+
+</body>
+</html>
