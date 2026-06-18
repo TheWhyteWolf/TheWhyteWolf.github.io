@@ -125,11 +125,11 @@
 
 <script>
     // Tactical ASCII Particle Generator
-    const asciiChars = ['+', '*', 'x', '~', ':', '.', '@', '#'];
+    const asciiChars = ['.',',':',';','+', '*', 'x', '~', ':', '.', '@', '#', '$'];
     
     document.addEventListener('mousemove', (e) => {
-        // Density throttle: only spawn a character 40% of the time the mouse moves
-        if(Math.random() > 0.4) return; 
+        // Density throttle: only spawn a character 60% of the time the mouse moves
+        if(Math.random() > 0.6) return; 
 
         const trail = document.createElement('span');
         trail.className = 'ascii-trail';
