@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae — a dial-up BBS of tools, ASCII art, plugins and software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121412">
+<title>maykstuff — Whyte Erminae BBS</title>
+<style>
+  *{box-sizing:border-box}
+  :root{ --bg:#121412; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --panel:#171a14; }
+  html,body{margin:0}
+  body{ background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+  #life{ position:fixed; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.11;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden; pointer-events:none; user-select:none; }
+  main{ position:relative; z-index:1; max-width:1080px; margin:0 auto;
+        padding:clamp(1.4rem,4vw,3rem) clamp(1rem,3vw,2rem); }
+
+  .banner{ border:4px double var(--fg); padding:1rem 1rem .9rem; text-align:center; margin-bottom:1.3rem; background:var(--bg); }
+  .banner h1{ margin:0; font-size:clamp(1.3rem,4vw,2.2rem); letter-spacing:.3em; font-weight:700;
+              color:var(--glow); text-shadow:0 0 12px rgba(164,201,75,.3); }
+  .banner .shade{ color:var(--dim); letter-spacing:0; }
+  .banner .sysop{ margin:.6rem 0 0; font-size:.76rem; opacity:.6; letter-spacing:.08em; }
+
+  .grid{ display:grid; gap:1.1rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); align-items:start; }
+  .box{ border:3px double var(--fg); background:var(--bg); padding:0 .95rem 1rem; }
+  .box .bar{ margin:0 -.95rem .8rem; padding:.4rem .95rem; border-bottom:2px solid var(--dim);
+             color:var(--glow); font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:.82rem;
+             display:flex; justify-content:space-between; align-items:center; }
+  .box .bar .blk{ color:var(--dim); letter-spacing:0; }
+
+  .entry{ display:flex; align-items:baseline; gap:.55rem; text-decoration:none; color:inherit; padding:.35rem 0; flex-wrap:wrap; }
+  .entry .hot{ color:var(--glow); font-weight:700; }
+  .entry .nm{ color:var(--fg); font-weight:700; transition:color .2s,text-shadow .2s; }
+  .entry .lead{ flex:1 1 20px; align-self:stretch; border-bottom:1px dotted var(--dim); margin-bottom:.4em; min-width:12px; }
+  .entry .bdg{ font-size:.66rem; letter-spacing:.06em; }
+  .entry .bdg::before{content:"["} .entry .bdg::after{content:"]"}
+  .bdg--live{ color:var(--glow); } .bdg--wip{ opacity:.5; }
+  .entry .desc{ flex:1 1 100%; margin:.15rem 0 0 1.9rem; font-size:.76rem; opacity:.55; line-height:1.4; }
+  .entry:hover .nm,.entry:focus-visible .nm{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
+  .entry:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+
+  footer{ margin-top:1.6rem; text-align:center; font-size:.76rem; opacity:.7; letter-spacing:.06em; }
+  footer .nc{ color:var(--glow); animation:blink 1.2s steps(1) infinite; }
+  @keyframes blink{ 50%{opacity:.15} }
+  @media (prefers-reduced-motion: reduce){ footer .nc{ animation:none } }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<main>
+  <header class="banner">
+    <h1><span class="shade">░▒▓</span> MAYKSTUFF BBS <span class="shade">▓▒░</span></h1>
+    <p class="sysop">Sysop: Whyte Erminae · Node 1 of 1 · 2400 baud · est. 2026 — type a letter to connect</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>CONNECT 2400 &nbsp;·&nbsp; [live] in browser &nbsp; [src] source &nbsp; [wip] building &nbsp;·&nbsp; <span class="nc">NO CARRIER</span></footer>
+</main>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#grid',
+  category:function(c,x){ return '<section class="box"><div class="bar"><span>'+MAYK.esc(c.name)+'</span><span class="blk">▚</span></div>'+x.itemsHTML+'</section>'; },
+  item:function(it,x){ return '<a class="entry" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="hot">['+String.fromCharCode(65+x.gi)+']</span><span class="nm">'+MAYK.esc(it.name)+'</span>'
+    +'<span class="lead"></span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span>'
+    +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
+});
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.11, ALIVE='░', DEAD=' ', INTERVAL=540, RESEED=520;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

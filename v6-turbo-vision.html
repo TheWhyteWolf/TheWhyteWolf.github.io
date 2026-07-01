@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae — a text-mode IDE of tools, ASCII art, plugins and software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121412">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  :root{ --bg:#121412; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --panel:#171a14; --shadow:rgba(0,0,0,.55); }
+  html,body{margin:0}
+  body{ background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+  #life{ position:fixed; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.09;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden; pointer-events:none; user-select:none; }
+  main{ position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:0 0 clamp(1rem,3vw,2rem); }
+
+  .menubar,.statusbar{ background:var(--fg); color:var(--bg); display:flex; gap:1.4rem; flex-wrap:wrap;
+    padding:.28rem clamp(.8rem,2vw,1.4rem); font-weight:700; letter-spacing:.04em; font-size:.82rem; }
+  .menubar .sys{ color:var(--glow); background:var(--bg); padding:0 .4rem; margin-right:.2rem; border-radius:2px; }
+  .menubar span.mi{ padding:0 .3rem; }
+  .menubar span.mi b{ color:var(--bg); }
+  .statusbar{ margin-top:clamp(1rem,3vw,1.8rem); }
+  .statusbar b{ color:var(--bg); background:var(--glow); padding:0 .25rem; margin-right:.1rem; border-radius:2px; }
+
+  .desktop{ padding:clamp(1rem,3vw,2rem) clamp(1rem,3vw,2rem) 0; }
+  .title-strip{ margin:0 0 1.3rem; letter-spacing:.24em; text-transform:uppercase; font-size:.9rem; opacity:.75; }
+  .title-strip b{ color:var(--glow); font-weight:700; }
+
+  .grid{ display:grid; gap:1.5rem 1.3rem; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); align-items:start; }
+  .win{ border:1px solid var(--fg); background:var(--bg); box-shadow:3px 2px 0 var(--shadow); position:relative; }
+  .win .tbar{ background:var(--fg); color:var(--bg); display:flex; justify-content:space-between; align-items:center;
+    padding:.14rem .5rem; font-weight:700; letter-spacing:.06em; font-size:.8rem; }
+  .win .tbar .ctl{ letter-spacing:0; }
+  .win .tbar .name{ text-transform:uppercase; }
+  .win .body{ padding:.55rem .6rem .7rem; }
+
+  .row{ display:block; text-decoration:none; color:inherit; padding:.22rem .35rem; }
+  .row .top{ display:flex; align-items:baseline; gap:.5rem; }
+  .row .nm{ font-weight:700; }
+  .row .nm::before{ content:"■ "; color:var(--glow); font-size:.7em; }
+  .row .bdg{ margin-left:auto; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
+  .row .bdg--live{ color:var(--glow); opacity:1; }
+  .row .bdg--wip{ opacity:.45; }
+  .row .desc{ margin:.1rem 0 0 1rem; font-size:.77rem; opacity:.58; line-height:1.4; }
+  .row:hover,.row:focus-visible{ background:var(--fg); color:var(--bg); outline:none; }
+  .row:hover .nm::before,.row:focus-visible .nm::before{ color:var(--bg); }
+  .row:hover .bdg,.row:hover .desc,.row:focus-visible .bdg,.row:focus-visible .desc{ color:var(--bg); opacity:1; }
+
+  /* decorative ASCII scrollbar on the tall window */
+  .win--scroll .body{ padding-right:1.6rem; }
+  .win--scroll .sb{ position:absolute; top:1.9rem; right:.3rem; bottom:.5rem; width:1ch; text-align:center;
+    color:var(--dim); display:flex; flex-direction:column; justify-content:space-between; user-select:none; }
+  .win--scroll .sb .thumb{ color:var(--fg); }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<main>
+  <nav class="menubar">
+    <span class="sys">≡</span>
+    <span class="mi"><b>F</b>ile</span><span class="mi"><b>E</b>dit</span><span class="mi"><b>V</b>iew</span>
+    <span class="mi"><b>P</b>rojects</span><span class="mi"><b>W</b>indow</span><span class="mi"><b>H</b>elp</span>
+  </nav>
+
+  <div class="desktop">
+    <p class="title-strip"><b>maykstuff</b> — the archive of whyte erminae</p>
+
+    <div class="grid">
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <nav class="statusbar">
+    <span><b>F1</b> Help</span><span><b>↵</b> Open</span><span><b>Tab</b> Next</span><span><b>Alt+X</b> Exit</span>
+  </nav>
+</main>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#grid',
+  category:function(c,x){ var s=c.items.length>3;
+    return '<section class="win'+(s?' win--scroll':'')+'"><div class="tbar"><span class="ctl">[■]</span>'
+      +'<span class="name">'+MAYK.esc(c.name)+'</span><span class="ctl">[↕]</span></div>'
+      +'<div class="body">'+x.itemsHTML+'</div>'
+      +(s?'<div class="sb" aria-hidden="true">▲<span class="thumb">█</span>▼</div>':'')+'</section>'; },
+  item:function(it){ return '<a class="row" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="top"><span class="nm">'+MAYK.esc(it.name)+'</span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></span>'
+    +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
+});
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.10, ALIVE='▒', DEAD=' ', INTERVAL=560, RESEED=540;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae — on a phosphor CRT: tools, ASCII art, plugins and software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0c0d0b">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  :root{ --bg:#101210; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --line:rgba(123,140,90,.5); }
+  html,body{margin:0}
+  body{ background:#08090a; color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+
+  .crt{ position:relative; min-height:calc(100vh - 2*clamp(6px,1.6vw,18px)); margin:clamp(6px,1.6vw,18px);
+    border-radius:20px; background:var(--bg); overflow:hidden;
+    box-shadow:0 0 0 clamp(8px,2vw,22px) #0c0d0b, 0 12px 40px rgba(0,0,0,.7),
+               inset 0 0 160px rgba(0,0,0,.85), inset 0 0 40px rgba(0,0,0,.6); }
+  #life{ position:absolute; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.09;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden; pointer-events:none; user-select:none; }
+  .crt::before{ content:""; position:absolute; inset:0; z-index:5; pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.18) 2px 3px); }
+  .crt::after{ content:""; position:absolute; inset:0; z-index:6; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.55) 100%); }
+
+  .scr{ position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:clamp(1.5rem,4vw,3.2rem);
+    text-shadow:0 0 6px rgba(123,140,90,.45); animation:flick 5s ease-in-out infinite; }
+  @keyframes flick{ 0%,100%{opacity:1} 48%{opacity:.985} 50%{opacity:.955} 52%{opacity:.985} }
+  @media (prefers-reduced-motion: reduce){ .scr{ animation:none } }
+
+  .boot{ margin:0 0 1.7rem; font-size:.85rem; line-height:1.75; }
+  .boot .hi{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
+  .boot .rdy{ font-weight:700; letter-spacing:.05em; }
+  .cur{ display:inline-block; width:.6ch; height:1em; background:var(--glow); vertical-align:-2px;
+    box-shadow:0 0 8px rgba(164,201,75,.7); animation:blink 1.1s steps(1) infinite; }
+  @keyframes blink{ 50%{opacity:0} }
+  @media (prefers-reduced-motion: reduce){ .cur{ animation:none } }
+
+  .grid{ display:grid; gap:1.2rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); align-items:start; }
+  .panel{ border:1px solid var(--line); border-radius:6px; padding:.4rem .9rem 1rem;
+    box-shadow:inset 0 0 22px rgba(164,201,75,.05); background:rgba(18,22,16,.35); }
+  .panel h2{ color:var(--glow); font-size:.78rem; letter-spacing:.2em; text-transform:uppercase; font-weight:700;
+    margin:.5rem 0 .8rem; padding-bottom:.5rem; border-bottom:1px solid var(--dim); text-shadow:0 0 8px rgba(164,201,75,.45); }
+  .panel h2::before{ content:"◧ "; opacity:.6; }
+
+  .row{ display:block; text-decoration:none; color:inherit; padding:.28rem 0; }
+  .row .top{ display:flex; align-items:baseline; gap:.5rem; }
+  .row .nm{ font-weight:700; }
+  .row .nm::before{ content:"» "; color:var(--glow); opacity:.65; }
+  .row .bdg{ margin-left:auto; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
+  .row .bdg--live{ color:var(--glow); opacity:1; } .row .bdg--wip{ opacity:.45; }
+  .row .desc{ margin:.14rem 0 0 1.1rem; font-size:.77rem; opacity:.58; line-height:1.4; }
+  .row:hover .nm,.row:focus-visible .nm{ color:var(--glow); text-shadow:0 0 12px rgba(164,201,75,.75); }
+  .row:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+
+  .status{ margin-top:1.7rem; border-top:1px solid var(--dim); padding-top:.6rem; display:flex; gap:1.4rem;
+    flex-wrap:wrap; justify-content:center; font-size:.74rem; opacity:.7; letter-spacing:.08em; }
+  .status .on{ color:var(--glow); }
+</style>
+</head>
+<body>
+<div class="crt">
+  <pre id="life" aria-hidden="true"></pre>
+  <div class="scr">
+    <div class="boot">
+      <div class="hi">MAYKSTUFF SYSTEMS &nbsp;(C) 2026 WHYTE ERMINAE</div>
+      <div>64K RAM SYSTEM &nbsp;·&nbsp; 49152 BYTES FREE &nbsp;·&nbsp; DEVICES OK</div>
+      <div class="rdy">READY.<span class="cur"></span></div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="status"><span class="on">● ONLINE</span><span>9600 8N1</span><span>VT100</span><span>live · src · wip</span></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#grid',
+  category:function(c,x){ return '<section class="panel"><h2>'+MAYK.esc(c.name)+'</h2>'+x.itemsHTML+'</section>'; },
+  item:function(it){ return '<a class="row" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="top"><span class="nm">'+MAYK.esc(it.name)+'</span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></span>'
+    +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
+});
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.09, ALIVE='+', DEAD=' ', INTERVAL=560, RESEED=540;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

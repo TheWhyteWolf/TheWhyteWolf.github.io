@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae — printed on green-bar paper: tools, ASCII art, plugins and software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121412">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  :root{ --bg:#121412; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --stripe:#191d14; --row:28px; }
+  html,body{margin:0}
+  body{ background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+  #life{ position:fixed; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.06;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden; pointer-events:none; user-select:none; }
+  main{ position:relative; z-index:1; max-width:1080px; margin:0 auto;
+        padding:clamp(1.4rem,4vw,3rem) clamp(1rem,3vw,2rem); }
+
+  .printhead{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:.4rem 1.2rem;
+    font-size:.78rem; letter-spacing:.05em; opacity:.65; border-bottom:1px solid var(--dim);
+    padding-bottom:.5rem; margin-bottom:.4rem; }
+  .jobline{ text-align:center; font-size:clamp(1.2rem,3.4vw,1.8rem); font-weight:700; letter-spacing:.14em;
+    color:var(--glow); margin:.6rem 0 1.4rem; }
+  .jobline .rule{ color:var(--dim); font-weight:400; letter-spacing:0; }
+
+  .grid{ display:grid; gap:1.4rem; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); align-items:start; }
+  .sheet{ position:relative; border:1px solid var(--dim); padding:.8rem 1rem .9rem 1.9rem; line-height:var(--row);
+    background:repeating-linear-gradient(to bottom, transparent 0 var(--row), var(--stripe) var(--row) calc(var(--row)*2)); }
+  .sheet::before,.sheet::after{ content:""; position:absolute; top:0; bottom:0; width:16px; background-color:var(--bg);
+    background-image:radial-gradient(circle at 8px 14px, var(--dim) 0 2.5px, transparent 3px);
+    background-size:16px var(--row); background-repeat:repeat-y; }
+  .sheet::before{ left:0; border-right:1px solid var(--dim); }
+  .sheet::after{ right:0; border-left:1px solid var(--dim); }
+  .sheet .inner{ position:relative; }
+
+  .sheet h2{ margin:0 0 .2rem; font-size:.86rem; letter-spacing:.1em; text-transform:uppercase; color:var(--fg); }
+  .sheet h2 .br{ color:var(--glow); }
+
+  .line{ display:flex; align-items:baseline; gap:.5rem; text-decoration:none; color:inherit; }
+  .line .nm{ font-weight:700; transition:color .2s; }
+  .line .lead{ flex:1 1 12px; align-self:stretch; border-bottom:1px dotted var(--dim); margin-bottom:.55em; min-width:10px; }
+  .line .bdg{ font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; opacity:.7; }
+  .line .bdg--live{ color:var(--glow); opacity:1; } .line .bdg--wip{ opacity:.45; }
+  .line:hover .nm,.line:focus-visible .nm{ color:var(--glow); }
+  .line:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .desc{ margin:0; opacity:.52; font-size:.78rem; }
+
+  footer{ text-align:center; margin-top:1.6rem; font-size:.78rem; opacity:.6; letter-spacing:.14em; }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<main>
+  <div class="printhead">
+    <span>LP01 · 132 COL · 6 LPI</span>
+    <span>JOB: MAYKSTUFF</span>
+    <span>DATE: 2026-07-01 · PAGE 001</span>
+  </div>
+  <div class="jobline"><span class="rule">====[</span> maykstuff <span class="rule">]====</span></div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>· · ·　 END OF LISTING — 11 RECORDS 　· · ·</footer>
+</main>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#grid',
+  category:function(c,x){ return '<section class="sheet"><div class="inner"><h2><span class="br">&gt;--[</span> '+MAYK.esc(c.name)+' <span class="br">]--</span></h2>'+x.itemsHTML+'</div></section>'; },
+  item:function(it){ return '<a class="line" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="nm">'+MAYK.esc(it.name)+'</span><span class="lead"></span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></a>'
+    +'<p class="desc">'+MAYK.esc(it.desc)+'</p>'; }
+});
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.08, ALIVE=':', DEAD=' ', INTERVAL=600, RESEED=560;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

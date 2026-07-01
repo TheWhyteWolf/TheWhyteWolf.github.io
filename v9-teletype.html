@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae — teletyped: tools, ASCII art, plugins and software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121412">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  :root{ --bg:#121412; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --panel:#191d14; }
+  html,body{margin:0}
+  body{ background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+  #life{ position:fixed; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.06;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden; pointer-events:none; user-select:none; }
+  main{ position:relative; z-index:1; padding:clamp(1.2rem,4vw,2.6rem) 1rem; }
+
+  .roll{ max-width:760px; margin:0 auto; border-left:1px solid var(--dim); border-right:1px solid var(--dim); background:var(--bg); }
+  .tape{ height:18px; background-color:var(--panel);
+    background-image:radial-gradient(circle at 9px 9px, var(--bg) 0 3px, transparent 3.4px);
+    background-size:18px 18px; background-repeat:repeat-x; border-top:1px solid var(--dim); border-bottom:1px solid var(--dim); }
+  .pad{ padding:1.5rem clamp(1rem,4vw,2.6rem) 1.7rem; }
+
+  .banner{ text-align:center; margin:0 0 .4rem; overflow-x:hidden; }
+  .banner pre{ display:inline-block; text-align:left; margin:0; color:var(--glow);
+    text-shadow:0 0 10px rgba(164,201,75,.3); font-size:clamp(6px,1.7vw,12px); line-height:1.08; white-space:pre; }
+  .subhead{ text-align:center; font-size:.76rem; letter-spacing:.14em; opacity:.6; margin:0 0 1.6rem; text-transform:uppercase; }
+  .subhead .rdy{ color:var(--glow); }
+
+  .sec{ margin:1.5rem 0 .3rem; font-size:.84rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700;
+        border-bottom:1px dashed var(--dim); padding-bottom:.35rem; }
+  .sec .br{ color:var(--glow); }
+  .sec:first-of-type{ margin-top:.4rem; }
+
+  .ln{ display:block; text-decoration:none; color:inherit; margin-top:.7rem; }
+  .ln .mk{ color:var(--glow); }
+  .ln .nm{ font-weight:700; transition:color .2s,text-shadow .2s; }
+  .ln .bdg{ font-size:.68rem; opacity:.7; letter-spacing:.06em; }
+  .ln .bdg::before{content:"["} .ln .bdg::after{content:"]"}
+  .ln .bdg--live{ color:var(--glow); opacity:1; } .ln .bdg--wip{ opacity:.45; }
+  .ln:hover .nm,.ln:focus-visible .nm{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
+  .ln:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .ds{ margin:.15rem 0 0; padding-left:2.2ch; opacity:.55; font-size:.8rem; line-height:1.45; }
+
+  .eot{ text-align:center; margin:2rem 0 .3rem; letter-spacing:.2em; font-size:.8rem; opacity:.65; }
+  .eot .cur{ display:inline-block; width:.6ch; background:var(--glow); color:transparent; animation:blink 1.1s steps(1) infinite; }
+  @keyframes blink{ 50%{opacity:0} }
+  @media (prefers-reduced-motion: reduce){ .eot .cur{ animation:none } }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<main>
+  <div class="roll">
+    <div class="tape" aria-hidden="true"></div>
+    <div class="pad">
+
+      <div class="banner"><pre aria-label="maykstuff">#   #   ###   #   #  #   #   ####  #####  #   #  #####  #####
+## ##  #   #   # #   #  #   #        #    #   #  #      #
+# # #  #####    #    ###     ###     #    #   #  ###    ###
+#   #  #   #    #    #  #       #    #    #   #  #      #
+#   #  #   #    #    #   #  ####     #     ###   #      #</pre></div>
+      <p class="subhead">Whyte Erminae · Teletype Model 33 ASR · <span class="rdy">RDY</span></p>
+
+      <div id="content"></div>
+
+      <p class="eot">*** END OF TRANSMISSION ***<span class="cur">_</span></p>
+    </div>
+    <div class="tape" aria-hidden="true"></div>
+  </div>
+</main>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#content',
+  category:function(c,x){ return '<h2 class="sec"><span class="br">&gt;&gt;&gt;</span> '+MAYK.esc(c.name)+'</h2>'+x.itemsHTML; },
+  item:function(it){ return '<a class="ln" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="mk">&gt;&gt;</span> <span class="nm">'+MAYK.esc(it.name)+'</span> <span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></a>'
+    +'<p class="ds">'+MAYK.esc(it.desc)+'</p>'; }
+});
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.08, ALIVE='.', DEAD=' ', INTERVAL=620, RESEED=560;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>
