@@ -66,6 +66,24 @@
 
   footer{ margin-top:2.6rem; text-align:center; font-size:.72rem; opacity:.5; letter-spacing:.1em; }
   footer b{ color:var(--glow); font-weight:400; }
+
+  /* ko-fi support frame — same TUI box, but glowing */
+  .kofi{ position:relative; display:block; width:max-content; max-width:100%; margin:2.2rem auto 0;
+    border:1px solid var(--glow); padding:1.35rem 1.6rem 1rem; text-decoration:none; color:var(--fg);
+    transition:box-shadow .2s; }
+  .kofi .k-title{ position:absolute; top:0; left:50%; transform:translate(-50%,-52%); padding:0 .55rem;
+    background:var(--bg); font-size:.74rem; letter-spacing:.24em; text-transform:uppercase; font-weight:700;
+    color:var(--glow); white-space:nowrap; }
+  .kofi .k-title::before{ content:"┤ "; color:var(--fg); }
+  .kofi .k-title::after { content:" ├"; color:var(--fg); }
+  .kofi::before,.kofi::after{ position:absolute; color:var(--glow); font-size:1rem; line-height:1; }
+  .kofi::before{ content:"+"; left:-1px; bottom:-1px; }
+  .kofi::after { content:"+"; right:-1px; bottom:-1px; }
+  .kofi .k-line{ font-weight:700; transition:color .2s, text-shadow .2s; }
+  .kofi .k-line::before{ content:"▸ "; color:var(--glow); opacity:.7; }
+  .kofi .k-cup{ color:var(--glow); }
+  .kofi:hover,.kofi:focus-visible{ box-shadow:0 0 18px rgba(164,201,75,.22); outline:none; }
+  .kofi:hover .k-line,.kofi:focus-visible .k-line{ color:var(--glow); text-shadow:0 0 10px rgba(164,201,75,.5); }
 </style>
 </head>
 <body>
@@ -78,6 +96,11 @@
   </header>
 
   <div class="grid" id="grid"></div>
+
+  <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+    <span class="k-title">support</span>
+    <span class="k-line">buy me a ko-fi <span class="k-cup">c[_]</span> — keep the frames alive</span>
+  </a>
 
   <footer><b>[live]</b> runs in browser &nbsp;·&nbsp; <b>[src]</b> source repo &nbsp;·&nbsp; <b>[wip]</b> under construction</footer>
 </main>

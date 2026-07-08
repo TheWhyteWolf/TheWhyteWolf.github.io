@@ -56,6 +56,15 @@
   .row:hover .nm,.row:focus-visible .nm{ color:var(--glow); text-shadow:0 0 12px rgba(164,201,75,.75); }
   .row:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
 
+  /* ko-fi support — load from device 8 */
+  .kofi{ display:block; margin:1.8rem 0 0; text-decoration:none; color:var(--fg);
+    font-size:.9rem; line-height:1.75; }
+  .kofi .cmd{ color:var(--glow); font-weight:700; letter-spacing:.05em;
+    text-shadow:0 0 9px rgba(164,201,75,.5); transition:text-shadow .2s; }
+  .kofi .out{ display:block; opacity:.65; }
+  .kofi:hover .cmd,.kofi:focus-visible .cmd{ text-shadow:0 0 16px rgba(164,201,75,.9); }
+  .kofi:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+
   .status{ margin-top:1.7rem; border-top:1px solid var(--dim); padding-top:.6rem; display:flex; gap:1.4rem;
     flex-wrap:wrap; justify-content:center; font-size:.74rem; opacity:.7; letter-spacing:.08em; }
   .status .on{ color:var(--glow); }
@@ -72,6 +81,11 @@
     </div>
 
     <div class="grid" id="grid"></div>
+
+    <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+      <span class="cmd">LOAD "KO-FI",8,1</span>
+      <span class="out">SEARCHING FOR COFFEE c[_] · PRESS HERE TO BUY WHYTE A KO-FI</span>
+    </a>
 
     <div class="status"><span class="on">● ONLINE</span><span>9600 8N1</span><span>VT100</span><span>live · src · wip</span></div>
   </div>

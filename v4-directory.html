@@ -61,6 +61,15 @@
 
   footer{ margin-top:2.4rem; font-size:.72rem; opacity:.5; letter-spacing:.04em; }
   footer .dollar{ opacity:.6; color:var(--glow); }
+
+  /* ko-fi support — a command worth running */
+  .kofi-line{ margin-top:2.4rem; margin-bottom:.4rem; }
+  .kofi{ color:var(--glow); font-weight:700; text-decoration:none;
+    text-shadow:0 0 9px rgba(164,201,75,.35); transition:text-shadow .2s; }
+  .kofi .k-cup{ opacity:.85; }
+  .kofi:hover,.kofi:focus-visible{ text-decoration:underline; text-shadow:0 0 15px rgba(164,201,75,.65); }
+  .kofi:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .kofi-sub{ margin:0; }
 </style>
 </head>
 <body>
@@ -71,6 +80,9 @@
   <p class="prompt-sub"># the archive of Whyte Erminae — 5 directories, 11 files</p>
 
   <div class="grid" id="grid"></div>
+
+  <p class="prompt kofi-line"><span class="user">whyte@erminae</span>:<span class="pwd">~/maykstuff</span><span class="dollar">$</span> <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">./buy-me-a-kofi.sh <span class="k-cup">c[_]</span></a></p>
+  <p class="prompt-sub kofi-sub"># running this script tips the maintainer — thank you!</p>
 
   <footer><span class="dollar">$</span> legend: .live = runs in browser &nbsp;·&nbsp; .src = source repo &nbsp;·&nbsp; .wip = under construction</footer>
 </main>

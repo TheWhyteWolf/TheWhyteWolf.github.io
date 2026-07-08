@@ -50,6 +50,16 @@
   .row:hover .nm::before,.row:focus-visible .nm::before{ color:var(--bg); }
   .row:hover .bdg,.row:hover .desc,.row:focus-visible .bdg,.row:focus-visible .desc{ color:var(--bg); opacity:1; }
 
+  /* ko-fi support — a system dialog */
+  .kofi-win{ max-width:360px; margin:1.8rem auto 0; }
+  .kofi-win .tbar{ background:var(--glow); }
+  .kofi-body{ text-align:center; padding:.9rem .8rem 1rem; }
+  .kofi-body p{ margin:0 0 .8rem; font-size:.8rem; opacity:.75; }
+  .kofi-btn{ display:inline-block; background:var(--glow); color:var(--bg); font-weight:700;
+    text-decoration:none; padding:.24rem .9rem; box-shadow:2px 2px 0 var(--shadow); letter-spacing:.04em; }
+  .kofi-btn:hover,.kofi-btn:focus-visible{ background:var(--fg); outline:none;
+    box-shadow:1px 1px 0 var(--shadow); transform:translate(1px,1px); }
+
   /* decorative ASCII scrollbar on the tall window */
   .win--scroll .body{ padding-right:1.6rem; }
   .win--scroll .sb{ position:absolute; top:1.9rem; right:.3rem; bottom:.5rem; width:1ch; text-align:center;
@@ -70,9 +80,15 @@
   <div class="desktop">
     <p class="title-strip"><b>maykstuff</b> — the archive of whyte erminae</p>
 
-    <div class="grid">
-
     <div class="grid" id="grid"></div>
+
+    <div class="win kofi-win">
+      <div class="tbar"><span class="ctl">[■]</span><span class="name">Support</span><span class="ctl">[?]</span></div>
+      <div class="body kofi-body">
+        <p>Enjoying the tools? Fuel the next build.</p>
+        <a class="kofi-btn" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">[ c[_] Buy me a Ko-fi ]</a>
+      </div>
+    </div>
   </div>
 
   <nav class="statusbar">

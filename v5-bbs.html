@@ -43,6 +43,18 @@
   .entry:hover .nm,.entry:focus-visible .nm{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
   .entry:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
 
+  /* ko-fi support — the donation door */
+  .kofi{ display:block; width:max-content; max-width:100%; margin:1.8rem auto 0; padding:.8rem 1.4rem;
+    border:3px double var(--glow); text-decoration:none; color:var(--fg); text-align:center;
+    letter-spacing:.14em; font-weight:700; text-transform:uppercase; font-size:.86rem;
+    transition:background .2s, text-shadow .2s; }
+  .kofi .shade{ color:var(--dim); letter-spacing:0; }
+  .kofi .hot{ color:var(--glow); }
+  .kofi small{ display:block; margin-top:.35rem; font-size:.68rem; letter-spacing:.08em; opacity:.6;
+    font-weight:400; text-transform:none; }
+  .kofi:hover,.kofi:focus-visible{ background:rgba(164,201,75,.07); text-shadow:0 0 10px rgba(164,201,75,.5); }
+  .kofi:focus-visible{ outline:1px solid var(--glow); outline-offset:3px; }
+
   footer{ margin-top:1.6rem; text-align:center; font-size:.76rem; opacity:.7; letter-spacing:.06em; }
   footer .nc{ color:var(--glow); animation:blink 1.2s steps(1) infinite; }
   @keyframes blink{ 50%{opacity:.15} }
@@ -59,6 +71,11 @@
   </header>
 
   <div class="grid" id="grid"></div>
+
+  <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+    <span class="shade">░▒▓</span> <span class="hot">[$]</span> TIP THE SYSOP — BUY A KO-FI c[_] <span class="shade">▓▒░</span>
+    <small>door opens at ko-fi.com · keeps the node online</small>
+  </a>
 
   <footer>CONNECT 2400 &nbsp;·&nbsp; [live] in browser &nbsp; [src] source &nbsp; [wip] building &nbsp;·&nbsp; <span class="nc">NO CARRIER</span></footer>
 </main>

@@ -48,6 +48,15 @@
   .line:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
   .desc{ margin:0; opacity:.52; font-size:.78rem; }
 
+  /* ko-fi support — remittance slip */
+  .kofi{ display:block; max-width:600px; margin:2rem auto 0; padding:.8rem 1rem .95rem; text-align:center;
+    border-top:1px dashed var(--fg); border-bottom:1px dashed var(--fg); text-decoration:none; color:var(--fg);
+    letter-spacing:.12em; font-size:.82rem; line-height:1.7; transition:background .2s; }
+  .kofi .cut{ display:block; font-size:.68rem; opacity:.55; letter-spacing:.28em; margin-bottom:.45rem; }
+  .kofi b{ color:var(--glow); font-weight:700; }
+  .kofi:hover,.kofi:focus-visible{ background:rgba(164,201,75,.06); }
+  .kofi:focus-visible{ outline:1px solid var(--glow); outline-offset:3px; }
+
   footer{ text-align:center; margin-top:1.6rem; font-size:.78rem; opacity:.6; letter-spacing:.14em; }
 </style>
 </head>
@@ -63,6 +72,11 @@
   <div class="jobline"><span class="rule">====[</span> maykstuff <span class="rule">]====</span></div>
 
   <div class="grid" id="grid"></div>
+
+  <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+    <span class="cut">✂ - - - - - - - - DETACH HERE - - - - - - - - ✂</span>
+    REMITTANCE SLIP · <b>PLEASE REMIT: 1 (ONE) KO-FI c[_]</b> · PAYABLE TO: WHYTE ERMINAE
+  </a>
 
   <footer>· · ·　 END OF LISTING — 11 RECORDS 　· · ·</footer>
 </main>
