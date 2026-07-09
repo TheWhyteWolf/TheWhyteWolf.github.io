@@ -9,10 +9,13 @@ window.MAYK = {
   brand: "maykstuff",
   tagline: "the archive of Whyte Erminae",
   categories: [
-    { name: "TTRPG Tools", items: [
+    { name: "WebApps", items: [
       { name: "PF2E Spell Cards", file: "pf2e-spell-cards",
         url: "https://thewhytewolf.github.io/pf2espellcards/", badge: "live",
-        desc: "Free, offline-capable Pathfinder 2E spell tracker." }
+        desc: "Free, offline-capable Pathfinder 2E spell tracker." },
+      { name: "Oblique Strategies", file: "oblique-strategies",
+        url: "https://thewhytewolf.github.io/Oblique/", badge: "live",
+        desc: "Eno & Schmidt's deck (plus 43 of my own) for when you're stuck." }
     ]},
     { name: "Ascii Art", items: [
       { name: "ascii_fluid · PC", file: "ascii_fluid_pc",
