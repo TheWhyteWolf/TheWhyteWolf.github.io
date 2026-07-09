@@ -40,6 +40,9 @@ window.MAYK = {
         desc: "Grabs game soundtracks from KHInsider." }
     ]},
     { name: "CLAP Plugins", items: [
+      { name: "Mangle",
+        url: "https://github.com/TheWhyteWolf/Mangle", badge: "wip",
+        desc: "Granular texture instrument — grains, stretch, cloud & spectral engines (Rust)." },
       { name: "Phase-Pyramid",
         url: "https://github.com/TheWhyteWolf/Phase-Pyramid", badge: "wip",
         desc: "A CLAP audio plugin. (under construction)" }
