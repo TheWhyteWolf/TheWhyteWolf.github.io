@@ -13,6 +13,9 @@ window.MAYK = {
       { name: "PF2E Spell Cards", file: "pf2e-spell-cards",
         url: "https://thewhytewolf.github.io/pf2espellcards/", badge: "live",
         desc: "Free, offline-capable Pathfinder 2E spell tracker." },
+      { name: "PF2E Party Tracker", file: "pf2e-party-tracker",
+        url: "https://thewhytewolf.github.io/pf2epartytracker/", badge: "live",
+        desc: "A GM's PF2E party dashboard — passive stats, secret checks & exploration activities." },
       { name: "Oblique Strategies", file: "oblique-strategies",
         url: "https://thewhytewolf.github.io/Oblique/", badge: "live",
         desc: "Eno & Schmidt's deck (plus 43 of my own) for when you're stuck." }
