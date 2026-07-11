@@ -60,6 +60,11 @@ window.MAYK = {
       { name: "PsyBGGen",
         url: "https://github.com/TheWhyteWolf/PsyBGGen", badge: "wip",
         desc: "Random psychedelic background generator." }
+    ]},
+    { name: "Linux Rice", items: [
+      { name: "niri-olivetree", file: "niri-olivetree",
+        url: "https://github.com/TheWhyteWolf/niri-olivetree", badge: "src",
+        desc: "Muted-olive niri desktop — Conway's Game of Life wallpaper, matching login screen, one quiet palette everywhere." }
     ]}
   ]
 };
