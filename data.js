@@ -61,10 +61,16 @@ window.MAYK = {
         url: "https://github.com/TheWhyteWolf/PsyBGGen", badge: "wip",
         desc: "Random psychedelic background generator." }
     ]},
-    { name: "Linux Rice", items: [
+    { name: "niri", items: [
       { name: "niri-olivetree", file: "niri-olivetree",
         url: "https://github.com/TheWhyteWolf/niri-olivetree", badge: "src",
-        desc: "Muted-olive niri desktop — Conway's Game of Life wallpaper, matching login screen, one quiet palette everywhere." }
+        desc: "Muted-olive niri desktop — Conway's Game of Life wallpaper, matching login screen, one quiet palette everywhere." },
+      { name: "lifewall", file: "lifewall",
+        url: "https://github.com/TheWhyteWolf/lifewall", badge: "src",
+        desc: "Conway's Game of Life as a smooth terminal wallpaper — a tiny Rust binary in kitty's background panel." },
+      { name: "lifelock", file: "lifelock",
+        url: "https://github.com/TheWhyteWolf/lifelock", badge: "src",
+        desc: "ext-session-lock screen locker for niri: an isometric Game of Life cube, hardened past swaylock." }
     ]}
   ]
 };
