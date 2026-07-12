@@ -68,9 +68,9 @@ window.MAYK = {
       { name: "lifewall", file: "lifewall",
         url: "https://github.com/TheWhyteWolf/lifewall", badge: "src",
         desc: "Conway's Game of Life as a smooth terminal wallpaper — a tiny Rust binary in kitty's background panel." },
-      { name: "lifelock", file: "lifelock",
-        url: "https://github.com/TheWhyteWolf/lifelock", badge: "src",
-        desc: "ext-session-lock screen locker for niri: an isometric Game of Life cube, hardened past swaylock." }
+      { name: "lifegate", file: "lifegate",
+        url: "https://github.com/TheWhyteWolf/lifegate", badge: "src",
+        desc: "The niri Game of Life session screens — the lifelock locker and the lifegreet greeter, one isometric cube." }
     ]}
   ]
 };
