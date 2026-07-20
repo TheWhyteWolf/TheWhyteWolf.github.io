@@ -18,7 +18,10 @@ window.MAYK = {
         desc: "A GM's PF2E party dashboard — passive stats, secret checks & exploration activities." },
       { name: "Oblique Strategies", file: "oblique-strategies",
         url: "https://thewhytewolf.github.io/Oblique/", badge: "live",
-        desc: "Eno & Schmidt's deck (plus 43 of my own) for when you're stuck." }
+        desc: "Eno & Schmidt's deck (plus 43 of my own) for when you're stuck." },
+      { name: "MiNERVA FM", file: "minerva-fm",
+        url: "https://thewhytewolf.github.io/MiNERVA-FM-Local/", badge: "live",
+        desc: "Audio-reactive CRT chiptune player — bring your own SID/SPC/VGM files." }
     ]},
     { name: "Ascii Art", items: [
       { name: "ascii_fluid · PC", file: "ascii_fluid_pc",
@@ -30,9 +33,6 @@ window.MAYK = {
       { name: "ascii-cam",
         url: "https://thewhytewolf.github.io/ascii-cam/", badge: "live",
         desc: "Your webcam feed, rendered live as ASCII." },
-      { name: "ascii_fluid_mobile",
-        url: "https://github.com/TheWhyteWolf/ascii_fluid_mobile", badge: "src",
-        desc: "Source for the ASCII fluid simulator." },
       { name: "ascii_tube",
         url: "https://github.com/TheWhyteWolf/ascii_tube", badge: "src",
         desc: "Terminal YouTube in 240p ASCII (Python + FFmpeg)." },
@@ -49,11 +49,17 @@ window.MAYK = {
       { name: "Mangle",
         url: "https://github.com/TheWhyteWolf/Mangle", badge: "wip",
         desc: "Granular texture instrument — grains, stretch, cloud & spectral engines (Rust)." },
+      { name: "Skrongle",
+        url: "https://github.com/TheWhyteWolf/Skrongle", badge: "wip",
+        desc: "Glitch/stutter freeze delay — probability sequencer, bitcrush, tape-stop, in a broken-screen UI (C++17, no frameworks)." },
       { name: "Phase-Pyramid",
         url: "https://github.com/TheWhyteWolf/Phase-Pyramid", badge: "wip",
         desc: "A CLAP audio plugin. (under construction)" }
     ]},
     { name: "Standalone Software", items: [
+      { name: "Colliderscope",
+        url: "https://github.com/TheWhyteWolf/Colliderscope", badge: "wip",
+        desc: "Divine-geometry visualiser — 19 forms across 3 layers, kaleidoscope & fractal feedback, audio-reactive, perfect-loop video export (Rust/wgpu)." },
       { name: "Moshit",
         url: "https://github.com/TheWhyteWolf/Moshit", badge: "wip",
         desc: "Cross-platform datamoshing — just FFmpeg & Python, no Adobe." },
