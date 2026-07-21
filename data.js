@@ -57,6 +57,9 @@ window.MAYK = {
         desc: "A CLAP audio plugin. (under construction)" }
     ]},
     { name: "Standalone Software", items: [
+      { name: "Divine Geometry",
+        url: "https://thewhytewolf.github.io/divine-geometry/", badge: "live",
+        desc: "Sacred geometry drawn by compass & straightedge \u2014 every circle centred on a solved intersection, never a stored coordinate. 14 figures plus endless lattice & Apollonian modes, in-browser via WebGPU (Rust/wgpu)." },
       { name: "Colliderscope",
         url: "https://github.com/TheWhyteWolf/Colliderscope", badge: "wip",
         desc: "Divine-geometry visualiser — 19 forms across 3 layers, kaleidoscope & fractal feedback, audio-reactive, perfect-loop video export (Rust/wgpu)." },
