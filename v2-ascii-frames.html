@@ -58,6 +58,9 @@
   .item:hover .name,.item:focus-visible .name{ color:var(--glow); text-shadow:0 0 10px rgba(164,201,75,.5); }
   .item .desc{ margin:.24rem 0 0 1.2rem; font-size:.8rem; opacity:.6; line-height:1.45; }
   .item:focus-visible{ outline:1px solid var(--glow); outline-offset:3px; }
+  .item.part{ padding-left:2ch; }
+  .item.part .name{ font-weight:400; }
+  .item.part .name::before{ content:"└ "; opacity:.55; }
 
   .badge{ margin-left:auto; font-size:.66rem; letter-spacing:.08em; opacity:.75; white-space:nowrap; }
   .badge::before{ content:"["; } .badge::after{ content:"]"; }
@@ -109,7 +112,7 @@
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="cat"><h2>'+MAYK.esc(c.name)+'</h2><ul>'+x.itemsHTML+'</ul></section>'; },
-  item:function(it){ return '<li><a class="item" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it){ return '<li><a class="item'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="row"><span class="name">'+MAYK.esc(it.name)+'</span><span class="badge badge--'+it.badge+'">'+it.badge+'</span></span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a></li>'; }
 });

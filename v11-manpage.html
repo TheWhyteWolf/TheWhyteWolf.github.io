@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae, as a manual page — tools, ASCII art, plugins and standalone software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121412">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#121412; --fg:#b4b4a6; --bold:#f2f2e8; --dim:#6f7266;
+    --rule:#2c2f28; --glow:#a4c94b;
+  }
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+  /* A manual page has no wallpaper. */
+  main{ max-width:62rem; margin:0 auto; padding:clamp(1.4rem,4vw,3rem) clamp(1rem,3vw,2rem);
+        font-size:clamp(.84rem,2.2vw,.95rem); line-height:1.65; }
+
+  /* running heads */
+  .rh,.rf{ display:flex; flex-wrap:wrap; gap:.6rem 1.5rem; justify-content:space-between;
+           color:var(--bold); font-weight:700; letter-spacing:.06em; font-size:.82em; }
+  .rh{ border-bottom:1px solid var(--rule); padding-bottom:.5rem; margin-bottom:1.8rem; }
+  .rf{ border-top:1px solid var(--rule); padding-top:.5rem; margin-top:2.2rem; }
+  .rh .mid,.rf .mid{ color:var(--dim); font-weight:400; letter-spacing:.03em; }
+
+  h2{ font-size:1em; font-weight:700; color:var(--bold); letter-spacing:.12em;
+      margin:1.9rem 0 .5rem; }
+  h2:first-of-type{ margin-top:0; }
+  .body{ padding-left:7ch; max-width:74ch; }
+  .body p{ margin:0 0 .6rem; }
+  b,strong{ color:var(--bold); font-weight:700; }
+  i,em{ color:var(--fg); font-style:italic; }
+
+  /* subsection per category */
+  .ss{ margin:1.4rem 0 0; }
+  .ss > h3{ font-size:1em; font-weight:700; color:var(--bold); margin:0 0 .35rem;
+            padding-left:3ch; letter-spacing:.05em; }
+
+  /* one entry = a tagged paragraph */
+  .tag{ display:block; text-decoration:none; color:inherit; padding-left:7ch; margin-top:.7rem; }
+  .tag .nm{ color:var(--bold); font-weight:700; }
+  .tag .bd{ color:var(--dim); }
+  .tag .bd--live{ color:var(--glow); }
+  .tag:hover .nm,.tag:focus-visible .nm{ color:var(--glow); text-decoration:underline; }
+  .tag:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .def{ margin:.1rem 0 0; padding-left:14ch; max-width:88ch; color:var(--fg); opacity:.82; }
+  .tag.part{ padding-left:11ch; }
+  .tag.part .nm{ font-weight:400; }
+  .def.part{ padding-left:18ch; }
+
+  /* ko-fi, filed where a man page files its cross-references */
+  .xref{ color:var(--bold); font-weight:700; text-decoration:none; border-bottom:1px solid var(--dim); }
+  .xref:hover,.xref:focus-visible{ color:var(--glow); border-bottom-color:var(--glow); }
+  .xref:focus-visible{ outline:none; }
+
+  @media (max-width:30rem){
+    .body,.tag{ padding-left:3ch; }
+    .def{ padding-left:6ch; }
+    .tag.part{ padding-left:6ch; }
+    .def.part{ padding-left:9ch; }
+    .ss > h3{ padding-left:1ch; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="rh"><span>MAYKSTUFF(1)</span><span class="mid">General Commands Manual</span><span>MAYKSTUFF(1)</span></div>
+
+  <h2>NAME</h2>
+  <div class="body"><p><b>maykstuff</b> &#x2014; the archive of Whyte Erminae</p></div>
+
+  <h2>SYNOPSIS</h2>
+  <div class="body"><p><b>maykstuff</b> <span id="synopsis"></span></p></div>
+
+  <h2>DESCRIPTION</h2>
+  <div class="body">
+    <p>Projects and experiments &#x2014; web apps for the tabletop, ASCII art that moves,
+    CLAP audio plugins, a Linux desktop grown out of Conway's Game of Life, and
+    command-line software for archiving and converting things in bulk.</p>
+    <p>Each entry is marked <b>live</b> if it runs in your browser, <b>src</b> if it is a
+    source repository, or <b>wip</b> if it is still under construction. Entries indented
+    beneath another are parts of it, not separate programs.</p>
+  </div>
+
+  <div id="grid"></div>
+
+  <h2>AUTHOR</h2>
+  <div class="body"><p>Written by Whyte Erminae.</p></div>
+
+  <h2>SEE ALSO</h2>
+  <div class="body">
+    <p><a class="xref" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">ko-fi(1)</a>
+    &#x2014; buy the author a coffee <span class="bd">c[_]</span>. One cup per invocation; the
+    flag is idempotent but the gesture is not.</p>
+  </div>
+
+  <div class="rf"><span>maykstuff</span><span class="mid" id="fdate"></span><span>MAYKSTUFF(1)</span></div>
+</main>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#grid',
+  category:function(c,x){ return '<section class="ss"><h3>'+MAYK.esc(c.name)+'</h3>'+x.itemsHTML+'</section>'; },
+  item:function(it){ var s=it.sub?' part':'';
+    return '<a class="tag'+s+'" href="'+it.url+'" target="_blank" rel="noopener">'
+      +'<span class="nm">'+MAYK.esc(it.name)+'</span> '
+      +'<span class="bd bd--'+it.badge+'">('+it.badge+')</span></a>'
+      +'<p class="def'+s+'">'+MAYK.esc(it.desc)+'</p>'; }
+});
+
+/* SYNOPSIS lists one flag per section, and the footer is dated like a real page. */
+(function(){
+  document.getElementById('synopsis').innerHTML = MAYK.categories.map(function(c){
+    return '[<i>--'+MAYK.slug(c.name)+'</i>]';
+  }).join(' ');
+  document.getElementById('fdate').textContent = MAYK.today();
+})();
+</script>
+</body>
+</html>

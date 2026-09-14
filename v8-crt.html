@@ -55,6 +55,9 @@
   .row .desc{ margin:.14rem 0 0 1.1rem; font-size:.77rem; opacity:.58; line-height:1.4; }
   .row:hover .nm,.row:focus-visible .nm{ color:var(--glow); text-shadow:0 0 12px rgba(164,201,75,.75); }
   .row:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .row.part{ padding-left:2ch; }
+  .row.part .nm{ font-weight:400; }
+  .row.part .nm::before{ content:"└ "; opacity:.55; }
 
   /* ko-fi support — load from device 8 */
   .kofi{ display:block; margin:1.8rem 0 0; text-decoration:none; color:var(--fg);
@@ -95,7 +98,7 @@
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="panel"><h2>'+MAYK.esc(c.name)+'</h2>'+x.itemsHTML+'</section>'; },
-  item:function(it){ return '<a class="row" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it){ return '<a class="row'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="top"><span class="nm">'+MAYK.esc(it.name)+'</span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
 });

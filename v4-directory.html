@@ -56,6 +56,8 @@
   .ext--src{ color:var(--fg); }
   .ext--wip{ color:var(--fg); opacity:.45; }
   .cmt{ flex:1 1 100%; margin:.15rem 0 0 2.5ch; font-size:.76rem; opacity:.5; line-height:1.4; }
+  .node.part .name{ font-weight:400; }
+  .node.part .cmt{ margin-left:5.5ch; }
   .cmt::before{ content:"# "; }
   .node:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
 
@@ -77,7 +79,7 @@
 
 <main>
   <p class="prompt"><span class="user">whyte@erminae</span>:<span class="pwd">~/maykstuff</span><span class="dollar">$</span> ls -R<span class="cursor">_</span></p>
-  <p class="prompt-sub"># the archive of Whyte Erminae — 5 directories, 11 files</p>
+  <p class="prompt-sub" id="tally"># the archive of Whyte Erminae</p>
 
   <div class="grid" id="grid"></div>
 
@@ -91,10 +93,31 @@
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="dir"><div class="path">./'+MAYK.slug(c.name)+'/</div><div class="tree">'+x.itemsHTML+'</div></section>'; },
-  item:function(it,x){ return '<a class="node" href="'+it.url+'" target="_blank" rel="noopener">'
-    +'<span class="tw">'+(x.last?'└─':'├─')+'</span><span class="name">'+MAYK.esc(it.file||it.name)+'</span>'
+  item:function(it,x){ return '<a class="node'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="tw">'+twig(it,x)+'</span><span class="name">'+MAYK.esc(it.file||it.name)+'</span>'
     +'<span class="ext ext--'+it.badge+'">.'+it.badge+'</span><span class="cmt">'+MAYK.esc(it.desc)+'</span></a>'; }
 });
+
+/* ls -R draws the real shape: a `sub` item hangs off the entry above it,
+   so the branch glyphs have to know about parents, not just position. */
+function twig(it, x){
+  var items = MAYK.categories[x.ci].items;
+  function moreTopAfter(i){
+    for(var k=i+1; k<items.length; k++) if(!items[k].sub) return true;
+    return false;
+  }
+  if(!it.sub) return moreTopAfter(x.ii) ? '├─' : '└─';
+  var j = x.ii - 1; while(j >= 0 && items[j].sub) j--;      // the parent
+  var lastSub = (x.ii === items.length-1) || !items[x.ii+1].sub;
+  return (j >= 0 && !moreTopAfter(j) ? '   ' : '│  ') + (lastSub ? '└─' : '├─');
+}
+
+/* The header counts what is actually listed. */
+(function(){
+  var n = MAYK.counts();
+  document.getElementById('tally').textContent =
+    '# the archive of Whyte Erminae — '+n.categories+' directories, '+n.items+' files';
+})();
 </script>
 <script>
 (function(){

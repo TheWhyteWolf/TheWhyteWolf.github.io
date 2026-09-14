@@ -42,6 +42,9 @@
   .entry .desc{ flex:1 1 100%; margin:.15rem 0 0 1.9rem; font-size:.76rem; opacity:.55; line-height:1.4; }
   .entry:hover .nm,.entry:focus-visible .nm{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
   .entry:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .entry.part{ padding-left:2ch; }
+  .entry.part .nm{ font-weight:400; }
+  .entry.part .desc{ margin-left:3.9rem; }
 
   /* ko-fi support — the donation door */
   .kofi{ display:block; width:max-content; max-width:100%; margin:1.8rem auto 0; padding:.8rem 1.4rem;
@@ -84,8 +87,8 @@
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="box"><div class="bar"><span>'+MAYK.esc(c.name)+'</span><span class="blk">▚</span></div>'+x.itemsHTML+'</section>'; },
-  item:function(it,x){ return '<a class="entry" href="'+it.url+'" target="_blank" rel="noopener">'
-    +'<span class="hot">['+String.fromCharCode(65+x.gi)+']</span><span class="nm">'+MAYK.esc(it.name)+'</span>'
+  item:function(it,x){ return '<a class="entry'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="hot">['+MAYK.key(x.gi)+']</span><span class="nm">'+MAYK.esc(it.name)+'</span>'
     +'<span class="lead"></span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
 });

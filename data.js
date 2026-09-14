@@ -4,24 +4,57 @@
    designs update. `file` is an optional filesystem-style name used
    only by the Directory design (v4).
    badge is one of: "live" | "src" | "wip".
+   `sub: true` marks an item as a constituent part of the entry
+   above it — each design indents or nests it.
    ───────────────────────────────────────────────────────────── */
 window.MAYK = {
   brand: "maykstuff",
   tagline: "the archive of Whyte Erminae",
   categories: [
     { name: "WebApps", items: [
-      { name: "PF2E Spell Cards", file: "pf2e-spell-cards",
-        url: "https://thewhytewolf.github.io/pf2espellcards/", badge: "live",
-        desc: "Free, offline-capable Pathfinder 2E spell tracker." },
-      { name: "PF2E Party Tracker", file: "pf2e-party-tracker",
-        url: "https://thewhytewolf.github.io/pf2epartytracker/", badge: "live",
-        desc: "A GM's PF2E party dashboard — passive stats, secret checks & exploration activities." },
       { name: "Oblique Strategies", file: "oblique-strategies",
         url: "https://thewhytewolf.github.io/Oblique/", badge: "live",
         desc: "Eno & Schmidt's deck (plus 43 of my own) for when you're stuck." },
       { name: "MiNERVA FM", file: "minerva-fm",
         url: "https://thewhytewolf.github.io/MiNERVA-FM-Local/", badge: "live",
         desc: "Audio-reactive CRT chiptune player — bring your own SID/SPC/VGM files." }
+    ]},
+    { name: "PF2e Toolbox", items: [
+      { name: "PF2e Toolbox", file: "pf2etoolbox",
+        url: "https://github.com/TheWhyteWolf/pf2etoolbox", badge: "src",
+        desc: "All four Pathfinder 2e tools on one origin, behind one name — submodule-pinned, stdlib Node, no build step." },
+      { name: "PF2e Primer", file: "pf2eprimer", sub: true,
+        url: "https://thewhytewolf.github.io/pf2eprimer/", badge: "live",
+        desc: "An interactive introduction to PF2e for people who already know tabletop RPGs — the three pillars of play, with live demos." },
+      { name: "PF2e Spellbook", file: "pf2espellcards", sub: true,
+        url: "https://thewhytewolf.github.io/pf2espellcards/", badge: "live",
+        desc: "Free, offline-capable Pathfinder 2e spell tracker." },
+      { name: "PF2e Party Tracker", file: "pf2epartytracker", sub: true,
+        url: "https://thewhytewolf.github.io/pf2epartytracker/", badge: "live",
+        desc: "A GM's party dashboard — passive stats, secret checks & exploration activities." },
+      { name: "PF2e Subsystems", file: "pf2esubsystems", sub: true,
+        url: "https://thewhytewolf.github.io/pf2esubsystems/", badge: "live",
+        desc: "Victory Point subsystems at the table — chases, infiltrations, influence encounters and research." }
+    ]},
+    { name: "LifeBranch", items: [
+      { name: "LifeBranch", file: "LifeBranch",
+        url: "https://github.com/TheWhyteWolf/LifeBranch", badge: "src",
+        desc: "A niri desktop for Arch Linux built around Conway's Game of Life — wallpaper, lock screen and login screen are all the same automaton, re-themed from one config file." },
+      { name: "lifeconf", file: "lifeconf", sub: true,
+        url: "https://github.com/TheWhyteWolf/LifeBranch/tree/main/lifeconf", badge: "src",
+        desc: "The theming front-end — one theme.toml regenerates every consumer's config." },
+      { name: "lifewall", file: "lifewall", sub: true,
+        url: "https://github.com/TheWhyteWolf/LifeBranch/tree/main/lifewall", badge: "src",
+        desc: "The Game of Life wallpaper, riding inside kitty's background panel." },
+      { name: "lifelock", file: "lifelock", sub: true,
+        url: "https://github.com/TheWhyteWolf/LifeBranch/tree/main/lifelock", badge: "src",
+        desc: "The screen locker, PAM-backed." },
+      { name: "lifenote", file: "lifenote", sub: true,
+        url: "https://github.com/TheWhyteWolf/LifeBranch/tree/main/lifenote", badge: "src",
+        desc: "The notification daemon — box-drawing frames, no glyph icons." },
+      { name: "lifegreet", file: "lifegreet", sub: true,
+        url: "https://github.com/TheWhyteWolf/LifeBranch/tree/main/lifegreet", badge: "src",
+        desc: "The login screen — the locker's twin, one isometric cube between them." }
     ]},
     { name: "Ascii Art", items: [
       { name: "ascii_fluid · PC", file: "ascii_fluid_pc",
@@ -51,35 +84,27 @@ window.MAYK = {
         desc: "Granular texture instrument — grains, stretch, cloud & spectral engines (Rust)." },
       { name: "Skrongle",
         url: "https://github.com/TheWhyteWolf/Skrongle", badge: "wip",
-        desc: "Glitch/stutter freeze delay — probability sequencer, bitcrush, tape-stop, in a broken-screen UI (C++17, no frameworks)." },
-      { name: "Phase-Pyramid",
-        url: "https://github.com/TheWhyteWolf/Phase-Pyramid", badge: "wip",
-        desc: "A CLAP audio plugin. (under construction)" }
+        desc: "Glitch/stutter freeze delay — probability sequencer, bitcrush, tape-stop, in a broken-screen UI (C++17, no frameworks)." }
     ]},
     { name: "Standalone Software", items: [
-      { name: "Divine Geometry",
-        url: "https://thewhytewolf.github.io/divine-geometry/", badge: "live",
-        desc: "Sacred geometry drawn by compass & straightedge \u2014 every circle centred on a solved intersection, never a stored coordinate. 14 figures plus endless lattice & Apollonian modes, in-browser via WebGPU (Rust/wgpu)." },
-      { name: "Colliderscope",
-        url: "https://github.com/TheWhyteWolf/Colliderscope", badge: "wip",
-        desc: "Divine-geometry visualiser — 19 forms across 3 layers, kaleidoscope & fractal feedback, audio-reactive, perfect-loop video export (Rust/wgpu)." },
+      { name: "IA-Chunkup", file: "ia-chunkup",
+        url: "https://github.com/TheWhyteWolf/IA-Chunkup", badge: "src",
+        desc: "Resilient bulk uploader for archive.org — chunks around the 120s read timeout in the internetarchive library (Python)." },
+      { name: "MiNERVA-FM-Term", file: "minerva-fm-term",
+        url: "https://github.com/TheWhyteWolf/MiNERVA-FM-Term", badge: "src",
+        desc: "Terminal music player for every video-game audio format (Rust)." },
+      { name: "MiNERVA-FM-Radio", file: "minerva-fm-radio",
+        url: "https://github.com/TheWhyteWolf/MiNERVA-FM-Radio", badge: "src",
+        desc: "The broadcast edition — Icecast stream, CRT visualiser listener page, SSE now-playing." },
+      { name: "4kListnConvert", file: "4klistnconvert",
+        url: "https://github.com/TheWhyteWolf/4kListnConvert", badge: "src",
+        desc: "Scans a video library, groups it, converts 4K to 1080p — and deletes the original only once the new file verifies. CLI with an optional TUI." },
       { name: "Moshit",
         url: "https://github.com/TheWhyteWolf/Moshit", badge: "wip",
         desc: "Cross-platform datamoshing — just FFmpeg & Python, no Adobe." },
       { name: "PsyBGGen",
         url: "https://github.com/TheWhyteWolf/PsyBGGen", badge: "wip",
         desc: "Random psychedelic background generator." }
-    ]},
-    { name: "niri", items: [
-      { name: "niri-olivetree", file: "niri-olivetree",
-        url: "https://github.com/TheWhyteWolf/niri-olivetree", badge: "src",
-        desc: "Muted-olive niri desktop — Conway's Game of Life wallpaper, matching login screen, one quiet palette everywhere." },
-      { name: "lifewall", file: "lifewall",
-        url: "https://github.com/TheWhyteWolf/lifewall", badge: "src",
-        desc: "Conway's Game of Life as a smooth terminal wallpaper — a tiny Rust binary in kitty's background panel." },
-      { name: "lifegate", file: "lifegate",
-        url: "https://github.com/TheWhyteWolf/lifegate", badge: "src",
-        desc: "The niri Game of Life session screens — the lifelock locker and the lifegreet greeter, one isometric cube." }
     ]}
   ]
 };
@@ -88,6 +113,24 @@ window.MAYK = {
 MAYK.esc  = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
 MAYK.slug = function(s){ return String(s).toLowerCase().replace(/\s*\/\s*/g,'-').replace(/\s+/g,'-'); };
 MAYK.pad2 = function(n){ return (n<10?'0':'')+n; };
+
+/* Menu keys for the designs that letter their entries: A-Z then 0-9,
+   so a listing longer than 26 items keeps giving back real characters. */
+MAYK.KEYS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+MAYK.key  = function(i){ return MAYK.KEYS.charAt(i % MAYK.KEYS.length); };
+
+/* Live totals, so no design has to hardcode a number that goes stale. */
+MAYK.counts = function(){
+  var items = 0;
+  MAYK.categories.forEach(function(c){ items += c.items.length; });
+  return { categories: MAYK.categories.length, items: items };
+};
+
+/* Today, as the print-out designs want it. */
+MAYK.today = function(){
+  var d = new Date();
+  return d.getFullYear()+'-'+MAYK.pad2(d.getMonth()+1)+'-'+MAYK.pad2(d.getDate());
+};
 
 /* Generic renderer. Each design supplies:
      item(it, ctx)      -> HTML for one entry   (ctx: {ci, ii, last, gi})

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae, as an adventure transcript — tools, ASCII art, plugins and standalone software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121412">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#121412; --fg:#9caa78; --glow:#a4c94b; --bright:#c3d18f;
+    --dim:#39412b; --status:#7b8c5a;
+  }
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+  #life{
+    position:fixed; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.045;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden;
+    pointer-events:none; user-select:none;
+  }
+
+  /* the Infocom status line: room, score, moves — always the top row */
+  .status{
+    position:sticky; top:0; z-index:3; display:flex; flex-wrap:wrap; gap:.2rem 1.5rem;
+    background:var(--status); color:var(--bg); font-weight:700;
+    padding:.2rem clamp(.6rem,3vw,1.4rem); font-size:clamp(.7rem,2vw,.82rem);
+    letter-spacing:.04em;
+  }
+  .status .sc{ margin-left:auto; }
+
+  main{ position:relative; z-index:1; max-width:66ch; margin:0 auto;
+        padding:clamp(1.2rem,4vw,2.4rem) clamp(1rem,4vw,1.6rem);
+        font-size:clamp(.86rem,2.3vw,.98rem); line-height:1.7; }
+
+  .banner{ color:var(--bright); font-weight:700; margin:0 0 .2rem; letter-spacing:.04em; }
+  .copy{ margin:0 0 1.8rem; opacity:.6; font-size:.86em; }
+
+  .cmd{ margin:1.5rem 0 .35rem; color:var(--glow); font-weight:700; letter-spacing:.03em; }
+  .cmd::before{ content:">"; opacity:.7; margin-right:.2ch; }
+  .prose{ margin:0 0 .2rem; }
+  .prose .tag{ color:var(--glow); font-size:.82em; letter-spacing:.06em; white-space:nowrap; }
+  .prose .tag--wip{ color:var(--fg); opacity:.6; }
+
+  /* a room */
+  .room{ margin-top:2.2rem; }
+  .room > .rm{ margin:0 0 .35rem; font-size:1em; font-weight:700; color:var(--bright); }
+  .room > .lead{ margin:0 0 .3rem; opacity:.9; }
+
+  /* an examinable thing: the command is the link, the response is the description */
+  a.cmd{ display:block; text-decoration:none; }
+  a.cmd:hover,a.cmd:focus-visible{ color:var(--bright); text-decoration:underline; }
+  a.cmd:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .cmd.part{ padding-left:3ch; }
+  .prose.part{ padding-left:3ch; }
+  .contains{ margin:.5rem 0 0; opacity:.9; }
+
+  .score{ margin:2.6rem 0 0; padding-top:1rem; border-top:1px solid var(--dim); }
+  footer{ position:relative; z-index:1; max-width:66ch; margin:1.4rem auto 0;
+          padding:0 clamp(1rem,4vw,1.6rem) 2rem; font-size:.74rem; opacity:.55; }
+  .cur{ display:inline-block; width:.6ch; background:var(--glow); color:transparent;
+        animation:blink 1.1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0 } }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<div class="status">
+  <span>The Archive of Whyte Erminae</span>
+  <span class="sc" id="score">Score: 0</span>
+  <span id="moves">Moves: 0</span>
+</div>
+
+<main>
+  <p class="banner">MAYKSTUFF: The Archive of Whyte Erminae</p>
+  <p class="copy">Copyright &#x00a9; 2026 Whyte Erminae. All rights reserved.<br>
+  Release <span id="rel">1</span> / Serial number <span id="ser">000000</span> / Interpreter 7 Version C</p>
+
+  <p class="cmd">LOOK</p>
+  <p class="prose">You are standing in an open field west of a white repository, with a
+  boarded front door. Conway's Game of Life plays quietly on every surface. Passages lead
+  off in several directions, and a small mailbox stands here, unread.</p>
+
+  <div id="grid"></div>
+
+  <a class="cmd" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">BUY KO-FI</a>
+  <p class="prose">Taken. The coffee is warm and unreasonably welcome &#x2014; thank you. c[_]</p>
+
+  <p class="cmd">QUIT</p>
+  <p class="prose score">Your score is <span id="pts">0</span> (total of <span id="pts2">0</span> points),
+  in <span id="mv2">0</span> moves. This gives you the rank of <b>Archivist</b>.<span class="cur">_</span></p>
+</main>
+
+<footer>Things marked <b>live</b> run in your browser &#x00b7; <b>src</b> is a source repository
+&#x00b7; <b>wip</b> is still being built. Indented things are inside the thing above them.</footer>
+
+<script src="data.js"></script>
+<script>
+/* Each category is a room; each project is a thing you can examine. Parts of a
+   larger project are things found inside it, so the parent announces them. */
+var ROOMS = {
+  "WebApps": "This room hums. Applications sit on plinths, each one already running.",
+  "PF2e Toolbox": "A heavy toolbox rests on a gaming table, its four compartments latched shut.",
+  "LifeBranch": "The walls here are alive with cells, dying and being born. A desktop has grown out of them.",
+  "Ascii Art": "Everything in this room is made of punctuation, and all of it is moving.",
+  "Crawls / Userscripts": "Small mechanical things crawl the walls, fetching what you asked for.",
+  "CLAP Plugins": "A rack of audio machinery, warm to the touch and slightly out of tune.",
+  "Standalone Software": "A workshop. Command lines lie about, each one pointed at a chore."
+};
+
+MAYK.render({ mount:'#grid',
+  category:function(c,x){
+    return '<section class="room"><p class="rm">'+MAYK.esc(c.name)+'</p>'
+      +'<p class="lead">'+MAYK.esc(ROOMS[c.name] || 'You are in a room full of things worth examining.')+'</p>'
+      +x.itemsHTML+'</section>'; },
+  item:function(it,x){
+    var s = it.sub ? ' part' : '';
+    var word = it.badge === 'live' ? 'live' : (it.badge === 'src' ? 'src' : 'wip');
+    var html = '<a class="cmd'+s+'" href="'+it.url+'" target="_blank" rel="noopener">'
+      +'EXAMINE '+MAYK.esc(it.name.toUpperCase())+'</a>'
+      +'<p class="prose'+s+'">'+MAYK.esc(it.desc)
+      +' <span class="tag tag--'+it.badge+'">('+word+')</span></p>';
+    /* If the next entry is a part of this one, open it first. */
+    var next = MAYK.categories[x.ci].items[x.ii+1];
+    if(!it.sub && next && next.sub){
+      html += '<p class="prose contains">Opening the '+MAYK.esc(it.name)+' reveals:</p>';
+    }
+    return html; }
+});
+
+/* The status line scores the archive itself: one point per project, one move per room. */
+(function(){
+  var n = MAYK.counts(), d = new Date();
+  var ser = String(d.getFullYear()).slice(2)+MAYK.pad2(d.getMonth()+1)+MAYK.pad2(d.getDate());
+  document.getElementById('score').textContent = 'Score: '+n.items;
+  document.getElementById('moves').textContent = 'Moves: '+n.categories;
+  document.getElementById('rel').textContent = n.items;
+  document.getElementById('ser').textContent = ser;
+  document.getElementById('pts').textContent = n.items;
+  document.getElementById('pts2').textContent = n.items;
+  document.getElementById('mv2').textContent = n.categories;
+})();
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.08, ALIVE='.', DEAD=' ', INTERVAL=700, RESEED=560;
+  function measure(){
+    var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9;
+  }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure();
+    cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){
+    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){
+      var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+        if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)];
+      }
+      var a=grid[y*cols+x];
+      nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0;
+    }
+    var t=grid; grid=nxt; nxt=t;
+  }
+  function render(){ var out='',i=0;
+    for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD;
+      out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup();
+  var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

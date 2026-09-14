@@ -47,6 +47,9 @@
   .line:hover .nm,.line:focus-visible .nm{ color:var(--glow); }
   .line:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
   .desc{ margin:0; opacity:.52; font-size:.78rem; }
+  .line.part{ padding-left:2ch; }
+  .line.part .nm{ font-weight:400; }
+  .desc.part{ padding-left:2ch; }
 
   /* ko-fi support — remittance slip */
   .kofi{ display:block; max-width:600px; margin:2rem auto 0; padding:.8rem 1rem .95rem; text-align:center;
@@ -67,7 +70,7 @@
   <div class="printhead">
     <span>LP01 · 132 COL · 6 LPI</span>
     <span>JOB: MAYKSTUFF</span>
-    <span>DATE: 2026-07-01 · PAGE 001</span>
+    <span id="printdate">DATE: ---- · PAGE 001</span>
   </div>
   <div class="jobline"><span class="rule">====[</span> maykstuff <span class="rule">]====</span></div>
 
@@ -78,17 +81,25 @@
     REMITTANCE SLIP · <b>PLEASE REMIT: 1 (ONE) KO-FI c[_]</b> · PAYABLE TO: WHYTE ERMINAE
   </a>
 
-  <footer>· · ·　 END OF LISTING — 11 RECORDS 　· · ·</footer>
+  <footer id="eol">· · ·　 END OF LISTING 　· · ·</footer>
 </main>
 
 <script src="data.js"></script>
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="sheet"><div class="inner"><h2><span class="br">&gt;--[</span> '+MAYK.esc(c.name)+' <span class="br">]--</span></h2>'+x.itemsHTML+'</div></section>'; },
-  item:function(it){ return '<a class="line" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it){ var s=it.sub?' part':'';
+    return '<a class="line'+s+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="nm">'+MAYK.esc(it.name)+'</span><span class="lead"></span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></a>'
-    +'<p class="desc">'+MAYK.esc(it.desc)+'</p>'; }
+    +'<p class="desc'+s+'">'+MAYK.esc(it.desc)+'</p>'; }
 });
+
+/* The print-out tells the truth about its own job: today's date, real totals. */
+(function(){
+  var n = MAYK.counts();
+  document.getElementById('printdate').textContent = 'DATE: '+MAYK.today()+' · PAGE 001';
+  document.getElementById('eol').textContent = '· · ·\u3000 END OF LISTING — '+n.items+' RECORDS \u3000· · ·';
+})();
 </script>
 <script>
 (function(){

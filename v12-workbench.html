@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae, as a Workbench screen — tools, ASCII art, plugins and standalone software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0055aa">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  /* Kickstart 1.3 shipped four colours and asked no further questions. */
+  :root{
+    --blue:#0055aa; --white:#ffffff; --black:#000000; --orange:#ff8800;
+    --deep:#003c77;
+  }
+  html,body{margin:0}
+  body{
+    background:var(--blue); color:var(--white);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:none;
+    letter-spacing:.03em;
+  }
+  #life{
+    position:fixed; inset:0; margin:0; z-index:0; color:var(--deep); opacity:.85;
+    font-size:14px; line-height:14px; white-space:pre; overflow:hidden;
+    pointer-events:none; user-select:none;
+  }
+
+  /* the screen title bar */
+  .screenbar{
+    position:relative; z-index:2; display:flex; flex-wrap:wrap; gap:.3rem 1.2rem;
+    align-items:center; background:var(--white); color:var(--black);
+    border-bottom:2px solid var(--black); padding:.22rem .6ch;
+    font-size:clamp(.7rem,2vw,.82rem); font-weight:700;
+  }
+  .screenbar .mem{ opacity:.78; font-weight:400; }
+  .screenbar .depth{ margin-left:auto; display:inline-flex; gap:2px; }
+  .screenbar .depth i{ display:block; width:11px; height:11px; background:var(--orange);
+                       border:2px solid var(--black); }
+
+  main{ position:relative; z-index:1; padding:clamp(.9rem,3vw,2rem) clamp(.6rem,2.5vw,1.6rem); }
+  .grid{ display:grid; gap:clamp(.9rem,2.5vw,1.5rem);
+         grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); align-items:start;
+         max-width:1160px; margin:0 auto; }
+
+  /* a drawer window */
+  .win{ background:var(--blue); border:2px solid var(--black);
+        box-shadow:2px 2px 0 var(--black); }
+  .tbar{ display:flex; align-items:center; gap:.5ch; background:var(--white); color:var(--black);
+         border-bottom:2px solid var(--black); padding:.18rem .35ch; font-size:.8rem; font-weight:700; }
+  .gad{ flex:0 0 auto; width:15px; height:15px; background:var(--orange);
+        border:2px solid var(--black); }
+  .gad--close::after{ content:""; display:block; width:5px; height:5px; margin:3px auto;
+                      background:var(--black); }
+  .tbar .ttl{ flex:1 1 auto; padding:0 .4ch; white-space:nowrap; overflow:hidden;
+              text-overflow:ellipsis; }
+  .tbar .gads{ display:flex; gap:2px; }
+  .wbody{ padding:.5rem .6ch .6rem; }
+
+  /* an icon row */
+  .icon{ display:flex; align-items:flex-start; gap:.7ch; text-decoration:none; color:inherit;
+         padding:.28rem .3ch; }
+  .icon .glyph{ flex:0 0 auto; width:20px; height:18px; margin-top:.15rem;
+                border:2px solid var(--black); background:var(--orange); position:relative; }
+  .icon .glyph::before{ content:""; position:absolute; left:2px; right:2px; top:2px; height:3px;
+                        background:var(--white); }
+  .icon--live .glyph{ background:var(--white); }
+  .icon--live .glyph::before{ background:var(--orange); }
+  .icon--wip .glyph{ background:var(--blue); }
+  .icon--wip .glyph::before{ background:var(--white); }
+  .icon .txt{ min-width:0; }
+  .icon .nm{ display:inline-block; font-weight:700; font-size:.86rem; padding:0 .3ch;
+             background:var(--blue); color:var(--white); }
+  .icon .ds{ display:block; margin-top:.2rem; font-size:.74rem; line-height:1.45; opacity:.82; }
+  .icon .bdg{ font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+              color:var(--orange); margin-left:.6ch; }
+  /* Workbench selected an icon by inverting its label */
+  .icon:hover .nm,.icon:focus-visible .nm{ background:var(--white); color:var(--blue); }
+  .icon:focus-visible{ outline:2px solid var(--white); outline-offset:0; }
+  .icon.part{ padding-left:2.4ch; }
+  .icon.part .glyph{ width:15px; height:14px; }
+  .icon.part .nm{ font-weight:400; }
+
+  /* the system requester nobody could ignore */
+  .req{ max-width:34rem; margin:clamp(1.4rem,4vw,2.4rem) auto 0; display:block;
+        text-decoration:none; color:var(--white); background:var(--blue);
+        border:2px solid var(--white); box-shadow:2px 2px 0 var(--black); }
+  .req .rt{ background:var(--white); color:var(--black); border-bottom:2px solid var(--black);
+            padding:.18rem .6ch; font-size:.8rem; font-weight:700; }
+  .req .rb{ padding:.8rem .9ch; text-align:center; font-size:.84rem; line-height:1.6; }
+  .req .btns{ display:flex; gap:1ch; justify-content:center; margin-top:.8rem; }
+  .req .btn{ border:2px solid var(--white); padding:.12rem .8ch; font-weight:700; font-size:.8rem; }
+  .req .btn--go{ background:var(--orange); color:var(--black); border-color:var(--black); }
+  .req:hover .btn--go,.req:focus-visible .btn--go{ background:var(--white); }
+  .req:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+
+  footer{ position:relative; z-index:1; max-width:1160px; margin:1.6rem auto 0;
+          padding:0 .6ch; font-size:.72rem; opacity:.82; }
+  footer b{ color:var(--orange); }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<div class="screenbar">
+  <span>Workbench</span>
+  <span class="mem" id="icons"></span>
+  <span class="mem">1,234,567 graphics mem</span>
+  <span class="mem">2,097,152 other mem</span>
+  <span class="depth"><i></i><i></i></span>
+</div>
+
+<main>
+  <div class="grid" id="grid"></div>
+
+  <a class="req" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+    <div class="rt">System Request</div>
+    <div class="rb">
+      Please insert volume <b>COFFEE</b><br>in any drive
+      <div class="btns"><span class="btn">Cancel</span><span class="btn btn--go">Buy a Ko-fi c[_]</span></div>
+    </div>
+  </a>
+
+  <footer><b>LIVE</b> runs in browser &nbsp;&#x00b7;&nbsp; <b>SRC</b> source repo &nbsp;&#x00b7;&nbsp; <b>WIP</b> under construction</footer>
+</main>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#grid',
+  category:function(c,x){
+    return '<section class="win"><div class="tbar">'
+      +'<span class="gad gad--close"></span><span class="ttl">'+MAYK.esc(c.name)+'</span>'
+      +'<span class="gads"><span class="gad"></span><span class="gad"></span></span></div>'
+      +'<div class="wbody">'+x.itemsHTML+'</div></section>'; },
+  item:function(it){
+    return '<a class="icon icon--'+it.badge+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+      +'<span class="glyph" aria-hidden="true"></span>'
+      +'<span class="txt"><span class="nm">'+MAYK.esc(it.name)+'</span>'
+      +'<span class="bdg">'+it.badge+'</span>'
+      +'<span class="ds">'+MAYK.esc(it.desc)+'</span></span></a>'; }
+});
+
+/* The screen bar counts what is actually on the Workbench. */
+document.getElementById('icons').textContent = MAYK.counts().items + ' icons';
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.12, ALIVE='▓', DEAD=' ', INTERVAL=640, RESEED=520;
+  function measure(){
+    var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9;
+  }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure();
+    cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){
+    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){
+      var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+        if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)];
+      }
+      var a=grid[y*cols+x];
+      nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0;
+    }
+    var t=grid; grid=nxt; nxt=t;
+  }
+  function render(){ var out='',i=0;
+    for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD;
+      out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup();
+  var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

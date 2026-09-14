@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae, as a teletext service — tools, ASCII art, plugins and standalone software.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
+<title>maykstuff — Whyte Erminae</title>
+<style>
+  *{box-sizing:border-box}
+  /* Mode 7 had eight colours and no in-between. */
+  :root{
+    --blk:#000000; --red:#ff0000; --grn:#00ff00; --yel:#ffff00;
+    --blu:#0000ff; --mag:#ff00ff; --cyn:#00ffff; --wht:#ffffff;
+    --bg:#000000;
+  }
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--wht);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:none;
+  }
+  #life{
+    position:fixed; inset:0; margin:0; z-index:0; color:var(--blu); opacity:.5;
+    font-size:16px; line-height:15px; white-space:pre; overflow:hidden;
+    pointer-events:none; user-select:none;
+  }
+  main{ position:relative; z-index:1; max-width:52rem; margin:0 auto;
+        padding:clamp(.6rem,2.5vw,1.6rem); }
+  .tt{ background:var(--blk); padding:clamp(.6rem,2vw,1.1rem);
+       font-size:clamp(.82rem,2.5vw,1rem); line-height:1.55; letter-spacing:.04em; }
+
+  /* header strip — service, page number, clock */
+  .hdr{ display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:baseline;
+        font-weight:700; margin-bottom:.9rem; }
+  .hdr .svc{ color:var(--cyn); }
+  .hdr .pno{ color:var(--wht); background:var(--red); padding:0 .45ch; }
+  .hdr .clk{ color:var(--grn); margin-left:auto; }
+
+  /* double-height, the Mode 7 way: one row of characters, twice as tall */
+  .dh{ display:inline-block; margin:0 0 .55rem; font-weight:700;
+       font-size:clamp(1.7rem,7.5vw,2.8rem); line-height:1;
+       transform:scaleY(1.3); transform-origin:left top; color:var(--yel); }
+  .strap{ margin:.5rem 0 1.3rem; color:var(--grn); text-transform:uppercase; }
+  .strap .blk{ color:var(--mag); }
+
+  /* one category = one teletext page */
+  .pg{ margin-bottom:1.5rem; }
+  .pg h2{ margin:0 0 .5rem; font-size:1em; font-weight:700; text-transform:uppercase;
+          color:var(--blk); background:var(--cyn); padding:0 .6ch;
+          display:flex; flex-wrap:wrap; gap:.8ch; align-items:baseline; }
+  .pg h2 .pn{ margin-left:auto; color:var(--blk); opacity:.75; }
+
+  .row{ display:flex; flex-wrap:wrap; align-items:baseline; gap:.55ch;
+        text-decoration:none; color:inherit; padding:.12rem 0; }
+  .row .nm{ color:var(--yel); font-weight:700; }
+  .row .dots{ flex:1 1 12px; align-self:stretch; min-width:8px;
+              border-bottom:2px dotted #003; margin-bottom:.45em; }
+  .row .bdg{ font-weight:700; }
+  .bdg--live{ color:var(--grn); } .bdg--src{ color:var(--cyn); } .bdg--wip{ color:var(--red); }
+  .row .ds{ flex:1 1 100%; color:var(--wht); opacity:.72; font-size:.92em;
+            margin:.05rem 0 .25rem 2ch; }
+  .row:hover .nm,.row:focus-visible .nm{ color:var(--blk); background:var(--yel); }
+  .row:focus-visible{ outline:2px solid var(--wht); outline-offset:1px; }
+  .row.part{ padding-left:2ch; }
+  .row.part .nm{ color:var(--cyn); font-weight:400; }
+  .row.part .nm::before{ content:"\2514 "; color:var(--blu); }
+  .row.part .ds{ margin-left:4ch; }
+  .row.part:hover .nm,.row.part:focus-visible .nm{ color:var(--blk); background:var(--cyn); }
+
+  /* ko-fi — the page nobody ever typed in */
+  .kofi{ display:block; text-decoration:none; margin:1.6rem 0 1.1rem;
+         color:var(--wht); background:var(--mag); padding:.3rem .6ch; font-weight:700; }
+  .kofi .p{ background:var(--blk); color:var(--yel); padding:0 .45ch; }
+  .kofi small{ display:block; font-weight:400; opacity:.9; margin-top:.15rem; }
+  .kofi:hover,.kofi:focus-visible{ background:var(--yel); color:var(--blk); outline:none; }
+  .kofi:hover .p,.kofi:focus-visible .p{ color:var(--mag); }
+
+  /* fastext bar — the four coloured buttons along the bottom */
+  .fast{ display:flex; flex-wrap:wrap; gap:.5rem 1.4rem; margin-top:1.2rem;
+         padding-top:.7rem; border-top:2px solid #003; font-size:.9em; }
+  .fast b{ font-weight:700; }
+  .f-red b{ color:var(--red); } .f-grn b{ color:var(--grn); }
+  .f-yel b{ color:var(--yel); } .f-cyn b{ color:var(--cyn); }
+  .fast .tally{ margin-left:auto; color:var(--wht); opacity:.6; }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<main>
+  <div class="tt">
+    <div class="hdr">
+      <span class="svc">MAYKSTUFF</span>
+      <span class="pno">P100</span>
+      <span class="clk" id="clk">&nbsp;</span>
+    </div>
+
+    <h1 class="dh">MAYKSTUFF</h1>
+    <p class="strap"><span class="blk">&#x2590;&#x2588;&#x258c;</span> the archive of Whyte Erminae</p>
+
+    <div id="grid"></div>
+
+    <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+      <span class="p">P199</span> SUPPORT &#x25b8; BUY ME A KO-FI c[_]
+      <small>one coffee keeps the service on air &#x2014; thank you</small>
+    </a>
+
+    <div class="fast">
+      <span class="f-red"><b>&#x25a0;</b> LIVE = runs in browser</span>
+      <span class="f-cyn"><b>&#x25a0;</b> SRC = source repo</span>
+      <span class="f-yel"><b>&#x25a0;</b> WIP = building</span>
+      <span class="tally" id="tally"></span>
+    </div>
+  </div>
+</main>
+
+<script src="data.js"></script>
+<script>
+MAYK.render({ mount:'#grid',
+  category:function(c,x){
+    return '<section class="pg"><h2>'+MAYK.esc(c.name)
+      +'<span class="pn">P1'+MAYK.pad2(x.ci+1)+'</span></h2>'+x.itemsHTML+'</section>'; },
+  item:function(it){ return '<a class="row'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="nm">'+MAYK.esc(it.name)+'</span><span class="dots"></span>'
+    +'<span class="bdg bdg--'+it.badge+'">'+it.badge.toUpperCase()+'</span>'
+    +'<span class="ds">'+MAYK.esc(it.desc)+'</span></a>'; }
+});
+
+/* The header clock and the page tally, the way a teletext page carried them. */
+(function(){
+  var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var clk=document.getElementById('clk');
+  function tick(){
+    var d=new Date();
+    clk.textContent=DAYS[d.getDay()]+' '+MAYK.pad2(d.getDate())+' '+MONS[d.getMonth()]
+      +' '+MAYK.pad2(d.getHours())+':'+MAYK.pad2(d.getMinutes())+':'+MAYK.pad2(d.getSeconds());
+  }
+  tick(); setInterval(tick,1000);
+  var n=MAYK.counts();
+  document.getElementById('tally').textContent=n.items+' ITEMS / '+n.categories+' PAGES';
+})();
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.10, ALIVE='█', DEAD=' ', INTERVAL=600, RESEED=500;
+  function measure(){
+    var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9;
+  }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure();
+    cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){
+    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){
+      var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+        if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)];
+      }
+      var a=grid[y*cols+x];
+      nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0;
+    }
+    var t=grid; grid=nxt; nxt=t;
+  }
+  function render(){ var out='',i=0;
+    for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD;
+      out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup();
+  var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

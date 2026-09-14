@@ -49,6 +49,9 @@
   .row:hover,.row:focus-visible{ background:var(--fg); color:var(--bg); outline:none; }
   .row:hover .nm::before,.row:focus-visible .nm::before{ color:var(--bg); }
   .row:hover .bdg,.row:hover .desc,.row:focus-visible .bdg,.row:focus-visible .desc{ color:var(--bg); opacity:1; }
+  .row.part{ padding-left:calc(.35rem + 2ch); }
+  .row.part .nm{ font-weight:400; }
+  .row.part .nm::before{ content:"└ "; font-size:1em; opacity:.7; }
 
   /* ko-fi support — a system dialog */
   .kofi-win{ max-width:360px; margin:1.8rem auto 0; }
@@ -104,7 +107,7 @@ MAYK.render({ mount:'#grid',
       +'<span class="name">'+MAYK.esc(c.name)+'</span><span class="ctl">[↕]</span></div>'
       +'<div class="body">'+x.itemsHTML+'</div>'
       +(s?'<div class="sb" aria-hidden="true">▲<span class="thumb">█</span>▼</div>':'')+'</section>'; },
-  item:function(it){ return '<a class="row" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it){ return '<a class="row'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="top"><span class="nm">'+MAYK.esc(it.name)+'</span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
 });

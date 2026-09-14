@@ -43,6 +43,9 @@
   .ln .bdg--live{ color:var(--glow); opacity:1; } .ln .bdg--wip{ opacity:.45; }
   .ln:hover .nm,.ln:focus-visible .nm{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
   .ln:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
+  .ln.part{ padding-left:2.5ch; }
+  .ln.part .nm{ font-weight:400; }
+  .ds.part{ padding-left:2.5ch; }
   .ds{ margin:.15rem 0 0; padding-left:2.2ch; opacity:.55; font-size:.8rem; line-height:1.45; }
 
   /* ko-fi support — wire transfer */
@@ -88,9 +91,10 @@
 <script>
 MAYK.render({ mount:'#content',
   category:function(c,x){ return '<h2 class="sec"><span class="br">&gt;&gt;&gt;</span> '+MAYK.esc(c.name)+'</h2>'+x.itemsHTML; },
-  item:function(it){ return '<a class="ln" href="'+it.url+'" target="_blank" rel="noopener">'
-    +'<span class="mk">&gt;&gt;</span> <span class="nm">'+MAYK.esc(it.name)+'</span> <span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></a>'
-    +'<p class="ds">'+MAYK.esc(it.desc)+'</p>'; }
+  item:function(it){ var s=it.sub?' part':'';
+    return '<a class="ln'+s+'" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="mk">'+(it.sub?'&gt;':'&gt;&gt;')+'</span> <span class="nm">'+MAYK.esc(it.name)+'</span> <span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></a>'
+    +'<p class="ds'+s+'">'+MAYK.esc(it.desc)+'</p>'; }
 });
 </script>
 <script>
