@@ -19,7 +19,7 @@ window.MAYK = {
         url: "https://thewhytewolf.github.io/MiNERVA-FM-Local/", badge: "live",
         desc: "Audio-reactive CRT chiptune player — bring your own SID/SPC/VGM files." }
     ]},
-    { name: "PF2e Toolbox", items: [
+    { name: "TTRPG Help", items: [
       { name: "PF2e Toolbox", file: "pf2etoolbox",
         url: "https://github.com/TheWhyteWolf/pf2etoolbox", badge: "src",
         desc: "All four Pathfinder 2e tools on one origin, behind one name — submodule-pinned, stdlib Node, no build step." },
@@ -94,8 +94,11 @@ window.MAYK = {
         url: "https://github.com/TheWhyteWolf/MiNERVA-FM-Term", badge: "src",
         desc: "Terminal music player for every video-game audio format (Rust)." },
       { name: "MiNERVA-FM-Radio", file: "minerva-fm-radio",
-        url: "https://github.com/TheWhyteWolf/MiNERVA-FM-Radio", badge: "src",
-        desc: "The broadcast edition — Icecast stream, CRT visualiser listener page, SSE now-playing." },
+        url: "https://github.com/minerva-archive/MiNERVA-FM", badge: "src",
+        desc: "The broadcast edition — a self-hosted chiptune radio: indexes the collection, serves one shared HLS stream and a CRT web player with a live spectrum. Everything decodes in-container." },
+      { name: "hootrip",
+        url: "https://github.com/TheWhyteWolf/hootrip", badge: "src",
+        desc: "Batch-converts hoot emulator music sets to S98/VGM register logs — re-hosts the game's own sound driver on an emulated PC-88 or PC-98 and logs the chip writes at full resolution (Rust)." },
       { name: "4kListnConvert", file: "4klistnconvert",
         url: "https://github.com/TheWhyteWolf/4kListnConvert", badge: "src",
         desc: "Scans a video library, groups it, converts 4K to 1080p — and deletes the original only once the new file verifies. CLI with an optional TUI." },
