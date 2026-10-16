@@ -17,7 +17,10 @@ window.MAYK = {
         desc: "Eno & Schmidt's deck (plus 43 of my own) for when you're stuck." },
       { name: "MiNERVA FM", file: "minerva-fm",
         url: "https://thewhytewolf.github.io/MiNERVA-FM-Local/", badge: "live",
-        desc: "Audio-reactive CRT chiptune player — bring your own SID/SPC/VGM files." }
+        desc: "Audio-reactive CRT chiptune player — bring your own SID/SPC/VGM files." },
+      { name: "Divine Geometry", file: "divine-geometry",
+        url: "https://thewhytewolf.github.io/divine-geometry/", badge: "live",
+        desc: "Compass-and-straightedge sacred geometry — every circle centred on a solved intersection (Rust + WebGPU)." }
     ]},
     { name: "TTRPG Help", items: [
       { name: "PF2e Toolbox", file: "pf2etoolbox",
@@ -54,7 +57,13 @@ window.MAYK = {
         desc: "The notification daemon — box-drawing frames, no glyph icons." },
       { name: "lifegreet", file: "lifegreet", sub: true,
         url: "https://github.com/TheWhyteWolf/LifeBranch/tree/main/lifegreet", badge: "src",
-        desc: "The login screen — the locker's twin, one isometric cube between them." }
+        desc: "The login screen — the locker's twin, one isometric cube between them." },
+      { name: "lifeshot", file: "lifeshot", sub: true,
+        url: "https://github.com/TheWhyteWolf/lifeshot", badge: "src",
+        desc: "Flameshot-style screenshot and annotation overlay for niri (Rust)." },
+      { name: "lifefiles", file: "lifefiles", sub: true,
+        url: "https://github.com/TheWhyteWolf/lifefiles", badge: "src",
+        desc: "Mouse-driven terminal file browser in yazi's layout, and the LifeBranch Open/Save dialog (Rust)." }
     ]},
     { name: "Ascii Art", items: [
       { name: "ascii_fluid · PC", file: "ascii_fluid_pc",
@@ -63,6 +72,9 @@ window.MAYK = {
       { name: "ascii_fluid · Mobile", file: "ascii_fluid_mobile",
         url: "https://thewhytewolf.github.io/ascii_fluid_mobile/", badge: "live",
         desc: "The fluid sim, tuned for touch screens." },
+      { name: "ascii_fluid · Rust", file: "ascii_fluid_rust",
+        url: "https://github.com/TheWhyteWolf/ASCII_Fluid_Rust", badge: "src",
+        desc: "Native desktop port — 42 palettes, 9 brushes, vorticity confinement & autopilot (Rust)." },
       { name: "ascii-cam",
         url: "https://thewhytewolf.github.io/ascii-cam/", badge: "live",
         desc: "Your webcam feed, rendered live as ASCII." },
@@ -73,35 +85,38 @@ window.MAYK = {
         url: "https://github.com/TheWhyteWolf/ASCII", badge: "src",
         desc: "ASCII art experiments & tooling." }
     ]},
+    { name: "Audio & Sound", items: [
+      { name: "furnace-chipruns", file: "furnace-chipruns",
+        url: "https://github.com/TheWhyteWolf/furnace-chipruns", badge: "src",
+        desc: "Free WAV samples of 80+ emulated sound chips & 1,280+ presets, rendered with Furnace." },
+      { name: "Sleeve-Note", file: "sleeve-note",
+        url: "https://github.com/TheWhyteWolf/Sleeve-Note", badge: "src",
+        desc: "A vinyl collection: what you own, what condition it is in, and what people are asking for it (Python)." },
+      { name: "MiNERVA-FM-Radio", file: "minerva-fm-radio",
+        url: "https://github.com/minerva-archive/MiNERVA-FM", badge: "src",
+        desc: "The broadcast edition — a self-hosted chiptune radio: indexes the collection, serves one shared HLS stream and a CRT web player with a live spectrum." },
+      { name: "MiNERVA-FM-Term", file: "minerva-fm-term",
+        url: "https://github.com/TheWhyteWolf/MiNERVA-FM-Term", badge: "src",
+        desc: "Terminal music player for every video-game audio format (Rust)." },
+      { name: "hootrip",
+        url: "https://github.com/TheWhyteWolf/hootrip", badge: "src",
+        desc: "Batch-converts hoot emulator music sets to S98/VGM register logs — re-hosts the game's own sound driver on an emulated PC-88 or PC-98 (Rust)." }
+    ]},
     { name: "Crawls / Userscripts", items: [
       { name: "KHinsider-crawl",
         url: "https://github.com/TheWhyteWolf/KHinsider-crawl", badge: "src",
         desc: "Grabs game soundtracks from KHInsider." }
     ]},
-    { name: "CLAP Plugins", items: [
-      { name: "Mangle",
-        url: "https://github.com/TheWhyteWolf/Mangle", badge: "wip",
-        desc: "Granular texture instrument — grains, stretch, cloud & spectral engines (Rust)." },
-      { name: "Skrongle",
-        url: "https://github.com/TheWhyteWolf/Skrongle", badge: "wip",
-        desc: "Glitch/stutter freeze delay — probability sequencer, bitcrush, tape-stop, in a broken-screen UI (C++17, no frameworks)." }
-    ]},
     { name: "Standalone Software", items: [
       { name: "IA-Chunkup", file: "ia-chunkup",
         url: "https://github.com/TheWhyteWolf/IA-Chunkup", badge: "src",
         desc: "Resilient bulk uploader for archive.org — chunks around the 120s read timeout in the internetarchive library (Python)." },
-      { name: "MiNERVA-FM-Term", file: "minerva-fm-term",
-        url: "https://github.com/TheWhyteWolf/MiNERVA-FM-Term", badge: "src",
-        desc: "Terminal music player for every video-game audio format (Rust)." },
-      { name: "MiNERVA-FM-Radio", file: "minerva-fm-radio",
-        url: "https://github.com/minerva-archive/MiNERVA-FM", badge: "src",
-        desc: "The broadcast edition — a self-hosted chiptune radio: indexes the collection, serves one shared HLS stream and a CRT web player with a live spectrum. Everything decodes in-container." },
-      { name: "hootrip",
-        url: "https://github.com/TheWhyteWolf/hootrip", badge: "src",
-        desc: "Batch-converts hoot emulator music sets to S98/VGM register logs — re-hosts the game's own sound driver on an emulated PC-88 or PC-98 and logs the chip writes at full resolution (Rust)." },
       { name: "4kListnConvert", file: "4klistnconvert",
         url: "https://github.com/TheWhyteWolf/4kListnConvert", badge: "src",
         desc: "Scans a video library, groups it, converts 4K to 1080p — and deletes the original only once the new file verifies. CLI with an optional TUI." },
+      { name: "noiteyes", file: "noiteyes",
+        url: "https://github.com/TheWhyteWolf/noiteyes", badge: "src",
+        desc: "Cryptanalysis workspace and solvers for Noita's unsolved Eye Messages cipher (Python & C)." },
       { name: "Moshit",
         url: "https://github.com/TheWhyteWolf/Moshit", badge: "wip",
         desc: "Cross-platform datamoshing — just FFmpeg & Python, no Adobe." },
