@@ -351,12 +351,12 @@
       "@media (max-width:640px){ .d-keys-hint{ display:none; } }",
       "",
       "/* Blitz Grid inside Act 7 */",
-      ".d-blitz-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:.5rem; padding:.6rem; overflow-y:auto; }",
-      ".d-blitz-card{ display:block; text-decoration:none; border:1px solid var(--d-dim); background:rgba(12,14,18,.82);",
-      "  padding:.5rem .65rem; color:var(--d-fg); transition:border-color .15s, transform .15s; }",
-      ".d-blitz-card.hi,.d-blitz-card:hover{ border-color:var(--d-glow); transform:translateY(-1px); box-shadow:0 0 12px rgba(201,180,75,.25); }",
-      ".d-blitz-card b{ color:var(--d-glow); display:flex; justify-content:space-between; font-size:.76rem; margin-bottom:.2rem; }",
-      ".d-blitz-card span{ display:block; font-size:.68rem; opacity:.78; line-height:1.35; }"
+      ".d-blitz-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:.42rem; padding:.5rem; overflow-y:auto; }",
+      ".d-blitz-card{ display:block; text-decoration:none; border:1px solid var(--d-dim); background:rgba(12,10,18,.64);",
+      "  backdrop-filter:blur(1px); padding:.4rem .58rem; color:var(--d-fg); transition:border-color .15s, transform .15s, background .15s; }",
+      ".d-blitz-card.hi,.d-blitz-card:hover{ border-color:var(--d-glow); background:rgba(20,16,32,.86); transform:translateY(-1px); box-shadow:0 0 12px rgba(201,180,75,.25); }",
+      ".d-blitz-card b{ color:var(--d-glow); display:flex; justify-content:space-between; font-size:.73rem; margin-bottom:.15rem; }",
+      ".d-blitz-card span{ display:block; font-size:.65rem; opacity:.8; line-height:1.3; }"
     ].join("\n");
     document.head.appendChild(st);
   }
@@ -1008,26 +1008,46 @@
     }
   }
 
-  // Act 7: Demoscene Starfield + Copper Bars + Sine Scroller + Native/CLI Blitz
+  // Act 7: Demoscene Starfield + Heighway Dragon Curve Fractal + Sine Scroller + Native/CLI Blitz
   var stars = [];
   for (var s = 0; s < 70; s++) {
     stars.push({ x: (Math.random() * 2 - 1), y: (Math.random() * 2 - 1), z: Math.random() });
   }
+
+  // Precompute Order-11 Heighway Dragon Curve (2048 segments) via bitwise paper-folding sequence
+  var DRAGON_ORDER = 11;
+  var DRAGON_PTS = (function(){
+    var n = 1 << DRAGON_ORDER;
+    var pts = [{ x: 0, y: 0 }];
+    var x = 0, y = 0, dir = 0;
+    var dx = [1, 0, -1, 0], dy = [0, 1, 0, -1];
+    var minX = 0, maxX = 0, minY = 0, maxY = 0;
+    for (var i = 1; i <= n; i++) {
+      x += dx[dir];
+      y += dy[dir];
+      pts.push({ x: x, y: y });
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+      var lowbit = i & -i;
+      var turnLeft = (((i / lowbit) >> 1) & 1) === 0;
+      dir = (dir + (turnLeft ? 1 : 3)) & 3;
+    }
+    var spanX = Math.max(1, maxX - minX);
+    var spanY = Math.max(1, maxY - minY);
+    for (var k = 0; k < pts.length; k++) {
+      pts[k].nx = (pts[k].x - minX) / spanX;
+      pts[k].ny = (pts[k].y - minY) / spanY;
+    }
+    return pts;
+  })();
+
   var scrollerMsg = "   *** MAYKSTUFF · THE ARCHIVE OF WHYTE ERMINAE · LIFEBRANCH NIRI DESKTOP · FURNACE CHIPRUNS · NOITEYES CIPHER SOLVER · SLEEVE-NOTE · HOOTRIP · ASCII_TUBE ***   ";
   function renderBlitz(now, elapsed, force){
     var w = canvasEl.width, h = canvasEl.height;
     ctx2d.fillStyle = "#08060d";
     ctx2d.fillRect(0, 0, w, h);
-
-    // Amiga Copper Raster Bars
-    var barColors = ["#39412b", "#7b8c5a", "#a4c94b", "#ffd633", "#a4c94b", "#7b8c5a"];
-    for (var b = 0; b < barColors.length; b++) {
-      var by = h * 0.65 + Math.sin(now * 0.0035 + b * 0.35) * (h * 0.22);
-      ctx2d.fillStyle = barColors[b];
-      ctx2d.globalAlpha = 0.24;
-      ctx2d.fillRect(0, by, w, 10);
-    }
-    ctx2d.globalAlpha = 1;
 
     // 3D Starfield
     for (var i = 0; i < stars.length; i++) {
@@ -1042,6 +1062,93 @@
       }
     }
 
+    // Mathematical Dragon Curve Fractal (L-System: FX -> FX+YF+, FY -> -FX-Y)
+    var padX = w * 0.06;
+    var drawW = w * 0.88;
+    var topY = h * 0.14;
+    var drawH = h * 0.70;
+
+    // Subtle polar / Cartesian axis crosshairs for the fractal locus
+    ctx2d.strokeStyle = "rgba(164, 201, 75, 0.11)";
+    ctx2d.lineWidth = 1;
+    ctx2d.beginPath();
+    ctx2d.moveTo(0, topY + drawH * 0.62);
+    ctx2d.lineTo(w, topY + drawH * 0.62);
+    ctx2d.moveTo(w * 0.5, 0);
+    ctx2d.lineTo(w * 0.5, h - 38);
+    ctx2d.stroke();
+
+    // Progressive generation cycle across the act (loops smoothly if paused/extended)
+    var cycleProgress = ((elapsed + 450) % 4600) / 3800;
+    if (cycleProgress > 1) cycleProgress = 1;
+    var totalSegs = DRAGON_PTS.length - 1;
+    var activeSegs = Math.max(32, Math.floor(cycleProgress * totalSegs));
+    var currentOrder = Math.max(1, Math.min(DRAGON_ORDER, Math.ceil(Math.log2(activeSegs))));
+
+    // Twin conjugate ghost dragon (180-degree rotated self-similar tiling partner in upper field)
+    ctx2d.strokeStyle = "rgba(164, 201, 75, 0.28)";
+    ctx2d.lineWidth = 1.1;
+    ctx2d.beginPath();
+    for (var g = 0; g <= activeSegs; g++) {
+      var gp = DRAGON_PTS[g];
+      var gx = padX + gp.nx * drawW;
+      var gy = topY + gp.ny * drawH;
+      if (g === 0) ctx2d.moveTo(gx, gy);
+      else ctx2d.lineTo(gx, gy);
+    }
+    ctx2d.stroke();
+
+    // Primary Dragon Curve rendered in color-ramped octaves across the open lower-center stage
+    var palette = ["#596b3d", "#7b8c5a", "#a4c94b", "#c9b44b", "#ffd633", "#ff9d1a", "#5cf7ff"];
+    var batchSize = Math.max(16, Math.floor(activeSegs / palette.length));
+    for (var b = 0; b < palette.length; b++) {
+      var sStart = b * batchSize;
+      if (sStart >= activeSegs) break;
+      var sEnd = (b === palette.length - 1) ? activeSegs : Math.min(activeSegs, (b + 1) * batchSize);
+      ctx2d.strokeStyle = palette[b];
+      ctx2d.lineWidth = (b >= palette.length - 2) ? 1.95 : 1.45;
+      ctx2d.beginPath();
+      for (var k = sStart; k <= sEnd; k++) {
+        var pt = DRAGON_PTS[k];
+        var px = padX + (1 - pt.nx) * drawW;
+        var py = topY + (1 - pt.ny) * drawH;
+        if (k === sStart) ctx2d.moveTo(px, py);
+        else ctx2d.lineTo(px, py);
+      }
+      ctx2d.stroke();
+    }
+
+    // Glowing active plotter head & hot trailing vector segments
+    var headPt = DRAGON_PTS[activeSegs];
+    var hx = padX + (1 - headPt.nx) * drawW;
+    var hy = topY + (1 - headPt.ny) * drawH;
+    var trailStart = Math.max(0, activeSegs - 56);
+    ctx2d.strokeStyle = "#ffffff";
+    ctx2d.lineWidth = 2.2;
+    ctx2d.beginPath();
+    for (var t = trailStart; t <= activeSegs; t++) {
+      var tp = DRAGON_PTS[t];
+      var tx = padX + (1 - tp.nx) * drawW;
+      var ty = topY + (1 - tp.ny) * drawH;
+      if (t === trailStart) ctx2d.moveTo(tx, ty);
+      else ctx2d.lineTo(tx, ty);
+    }
+    ctx2d.stroke();
+
+    ctx2d.fillStyle = "#ffffff";
+    ctx2d.beginPath();
+    ctx2d.arc(hx, hy, 3.5, 0, Math.PI * 2);
+    ctx2d.fill();
+
+    // Mathematical HUD readout above the sine scroller
+    ctx2d.fillStyle = "#c9b44b";
+    ctx2d.font = "11px ui-monospace, monospace";
+    ctx2d.fillText(
+      "HEIGHWAY DRAGON L-SYSTEM [FX→FX+YF+ · FY→-FX-Y] · ORDER n=" + currentOrder + "/" + DRAGON_ORDER + " · VECTORS: " + activeSegs + "/" + totalSegs,
+      14,
+      h - 44
+    );
+
     // Classic Demoscene Sine-Wave Character Scroller along the bottom
     ctx2d.font = "bold 15px ui-monospace, monospace";
     var charStep = 10;
@@ -1052,7 +1159,7 @@
     for (var sc = 0; sc < visibleChars; sc++) {
       var ch = scrollerMsg.charAt((startChar + sc) % scrollerMsg.length);
       var cx = offsetPx + sc * charStep;
-      var cy = h - 26 + Math.sin(now * 0.006 + (startChar + sc) * 0.28) * 12;
+      var cy = h - 20 + Math.sin(now * 0.006 + (startChar + sc) * 0.28) * 9;
       ctx2d.fillStyle = (startChar + sc) % 2 === 0 ? "#ffd633" : "#a4c94b";
       ctx2d.fillText(ch, cx, cy);
     }
@@ -1071,7 +1178,7 @@
         tel.innerHTML = [
           '<div style="color:var(--d-glow);font-weight:700;">SPOTLIGHT [' + (hiIdx + 1) + '/' + NATIVE_BLITZ.length + ']: ' + cur.name + ' (' + cur.cat + ')</div>',
           '<div style="margin:.35rem 0;">' + cur.desc + '</div>',
-          '<div style="opacity:.7;font-size:.68rem;">Click any project card on the stage to open its repository directly.</div>'
+          '<div style="opacity:.8;font-size:.68rem;border-top:1px solid var(--d-dim);padding-top:.35rem;margin-top:.25rem;"><b>STAGE FRACTAL:</b> Twin Heighway Dragon Curve (D₁₁ · 2¹¹ = 2,048 orthogonal folds · Hausdorff dim D = 2).</div>'
         ].join("");
       }
     }
