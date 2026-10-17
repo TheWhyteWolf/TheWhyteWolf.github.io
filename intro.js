@@ -9,6 +9,7 @@ window.MAYK = window.MAYK || {};
 MAYK.shouldIntro = function(id){
   try {
     if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    if(/(?:^\?|&)demo=1(?:&|$)/.test(location.search)) return false;
     if(/(?:^\?|&)intro=1(?:&|$)/.test(location.search)) return true;
     var key = 'mayk-intro:' + (id || location.pathname);
     return !sessionStorage.getItem(key);
@@ -21,6 +22,12 @@ MAYK.intro = function(opts){
   opts = opts || {};
   var root = document.documentElement;
   var done = false;
+
+  // If ?demo=1 is requested, skip boot intro immediately so demo reel takes the stage
+  if(/(?:^\?|&)demo=1(?:&|$)/.test(location.search)){
+    root.classList.remove('intro', 'intro-run');
+    return;
+  }
 
   // If head pre-check didn't activate intro (reduced motion / already seen), do nothing
   if(!root.classList.contains('intro')) return;
@@ -70,3 +77,13 @@ MAYK.intro = function(opts){
   window.addEventListener('keydown', finish);
   window.addEventListener('pointerdown', finish);
 };
+
+// Ensure demo.js is loaded on every view that includes intro.js
+(function(){
+  if (!window.MAYK.demo && !document.querySelector('script[src*="demo.js"]')) {
+    var s = document.createElement('script');
+    s.src = 'demo.js';
+    document.head.appendChild(s);
+  }
+})();
+

@@ -43,8 +43,10 @@
     var idx = (forced!==null && forced!=='') ? parseInt(forced,10) : dayNum;
     if(isNaN(idx)) idx = dayNum;
     idx = ((idx % n) + n) % n;
-    var target = ROTATION[idx];
-    if(p.get('intro') === '1') target += '?intro=1';
+    var qs = [];
+    if(p.get('intro') === '1') qs.push('intro=1');
+    if(p.get('demo') === '1') qs.push('demo=1');
+    var target = ROTATION[idx] + (qs.length ? '?' + qs.join('&') : '');
     location.replace(target);
   }catch(e){ /* fall through to the no-script list below */ }
 })();
