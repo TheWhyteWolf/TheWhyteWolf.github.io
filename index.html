@@ -29,7 +29,9 @@
     'v10-teletext.html',      // 7
     'v11-manpage.html',       // 8
     'v12-workbench.html',     // 9
-    'v13-zork.html'           // 10
+    'v13-zork.html',          // 10
+    'v14-oscilloscope.html',  // 11
+    'v15-punchcard.html'      // 12
   ];
   try{
     var p = new URLSearchParams(location.search);
@@ -41,7 +43,9 @@
     var idx = (forced!==null && forced!=='') ? parseInt(forced,10) : dayNum;
     if(isNaN(idx)) idx = dayNum;
     idx = ((idx % n) + n) % n;
-    location.replace(ROTATION[idx]);
+    var target = ROTATION[idx];
+    if(p.get('intro') === '1') target += '?intro=1';
+    location.replace(target);
   }catch(e){ /* fall through to the no-script list below */ }
 })();
 </script>
@@ -60,7 +64,9 @@
       <a href="v10-teletext.html">» Teletext / Ceefax</a><br>
       <a href="v11-manpage.html">» Manual Page</a><br>
       <a href="v12-workbench.html">» Amiga Workbench</a><br>
-      <a href="v13-zork.html">» Adventure Transcript</a>
+      <a href="v13-zork.html">» Adventure Transcript</a><br>
+      <a href="v14-oscilloscope.html">» Vector Oscilloscope</a><br>
+      <a href="v15-punchcard.html">» 80-Column Punch Cards</a>
     </p>
   </noscript>
   <p class="wait">connecting… if nothing happens, <a href="v2-ascii-frames.html">enter here</a>.</p>

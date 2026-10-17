@@ -3,10 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Projects and experiments by Whyte Erminae, as a manual page — tools, ASCII art, plugins and standalone software.">
+<meta name="description" content="Projects and experiments by Whyte Erminae, as a manual page — tools, ASCII art, audio and standalone software.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{
@@ -60,6 +68,22 @@
   .xref:hover,.xref:focus-visible{ color:var(--glow); border-bottom-color:var(--glow); }
   .xref:focus-visible{ outline:none; }
 
+  /* ── nroff / less(1) pager boot intro ── */
+  #man-pager{ display:none; }
+  html.intro #man-pager{
+    display:inline-block; position:fixed; left:clamp(1rem,3vw,2rem); bottom:1rem; z-index:20;
+    background:var(--bold); color:var(--bg); font-weight:700; font-size:.82rem;
+    padding:.1rem .6ch; letter-spacing:.03em; pointer-events:none;
+  }
+  html.intro main{ clip-path:inset(0 0 100% 0); }
+  html.intro-run main{
+    animation:man-fill .44s steps(14,end) both;
+  }
+  @keyframes man-fill{
+    from{ clip-path:inset(0 0 100% 0); }
+    to{ clip-path:inset(0 0 0% 0); }
+  }
+
   @media (max-width:30rem){
     .body,.tag{ padding-left:3ch; }
     .def{ padding-left:6ch; }
@@ -70,6 +94,7 @@
 </style>
 </head>
 <body>
+<div id="man-pager" aria-hidden="true">Formatting page, please wait...</div>
 
 <main>
   <div class="rh"><span>MAYKSTUFF(1)</span><span class="mid">General Commands Manual</span><span>MAYKSTUFF(1)</span></div>
@@ -106,6 +131,7 @@
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="ss"><h3>'+MAYK.esc(c.name)+'</h3>'+x.itemsHTML+'</section>'; },
@@ -122,6 +148,23 @@ MAYK.render({ mount:'#grid',
     return '[<i>--'+MAYK.slug(c.name)+'</i>]';
   }).join(' ');
   document.getElementById('fdate').textContent = MAYK.today();
+})();
+
+(function(){
+  var timer = null;
+  MAYK.intro({
+    duration: 480,
+    run: function(){
+      var p = document.getElementById('man-pager');
+      if(!p) return;
+      timer = setTimeout(function(){
+        p.textContent = 'Manual page maykstuff(1) line 1 (press q to quit)';
+      }, 170);
+    },
+    cleanup: function(){
+      if(timer) clearTimeout(timer);
+    }
+  });
 })();
 </script>
 </body>

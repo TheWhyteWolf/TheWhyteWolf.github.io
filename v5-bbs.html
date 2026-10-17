@@ -7,6 +7,14 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
 <title>maykstuff — Whyte Erminae BBS</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{ --bg:#121412; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --panel:#171a14; }
@@ -18,6 +26,17 @@
     font-size:15px; line-height:16px; white-space:pre; overflow:hidden; pointer-events:none; user-select:none; }
   main{ position:relative; z-index:1; max-width:1080px; margin:0 auto;
         padding:clamp(1.4rem,4vw,3rem) clamp(1rem,3vw,2rem); }
+
+  /* ── BBS dial-up intro ── */
+  .bbs-dial{
+    position:fixed; inset:0; z-index:99; background:var(--bg); color:var(--glow);
+    padding:clamp(1.5rem,4vw,3rem); font-family:inherit; font-size:clamp(.9rem,2.2vw,1.2rem);
+    line-height:1.6; white-space:pre-wrap; margin:0; pointer-events:none;
+    text-shadow:0 0 10px rgba(164,201,75,.4);
+  }
+  .bbs-dial .cur{ display:inline-block; width:.6ch; height:1.1em; background:var(--glow); vertical-align:-2px; animation:blink .8s steps(1) infinite; }
+  .bbs-dial.out{ animation:dialout .12s steps(2) forwards; }
+  @keyframes dialout{ to{ opacity:0; } }
 
   .banner{ border:4px double var(--fg); padding:1rem 1rem .9rem; text-align:center; margin-bottom:1.3rem; background:var(--bg); }
   .banner h1{ margin:0; font-size:clamp(1.3rem,4vw,2.2rem); letter-spacing:.3em; font-weight:700;
@@ -40,11 +59,10 @@
   .entry .bdg::before{content:"["} .entry .bdg::after{content:"]"}
   .bdg--live{ color:var(--glow); } .bdg--wip{ opacity:.5; }
   .entry .desc{ flex:1 1 100%; margin:.15rem 0 0 1.9rem; font-size:.76rem; opacity:.55; line-height:1.4; }
+  .entry--sub{ padding-left:1.3rem; }
+  .entry--sub .nm::before{ content:"└ "; color:var(--dim); font-weight:400; }
   .entry:hover .nm,.entry:focus-visible .nm{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
   .entry:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
-  .entry.part{ padding-left:2ch; }
-  .entry.part .nm{ font-weight:400; }
-  .entry.part .desc{ margin-left:3.9rem; }
 
   /* ko-fi support — the donation door */
   .kofi{ display:block; width:max-content; max-width:100%; margin:1.8rem auto 0; padding:.8rem 1.4rem;
@@ -70,7 +88,7 @@
 <main>
   <header class="banner">
     <h1><span class="shade">░▒▓</span> MAYKSTUFF BBS <span class="shade">▓▒░</span></h1>
-    <p class="sysop">Sysop: Whyte Erminae · Node 1 of 1 · 2400 baud · est. 2026 — type a letter to connect</p>
+    <p class="sysop">Sysop: Whyte Erminae · Node 1 of 1 · 2400 baud · est. 2026 — type a key to connect</p>
   </header>
 
   <div class="grid" id="grid"></div>
@@ -84,13 +102,61 @@
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="box"><div class="bar"><span>'+MAYK.esc(c.name)+'</span><span class="blk">▚</span></div>'+x.itemsHTML+'</section>'; },
-  item:function(it,x){ return '<a class="entry'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it,x){ return '<a class="entry'+(it.sub?' entry--sub':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="hot">['+MAYK.key(x.gi)+']</span><span class="nm">'+MAYK.esc(it.name)+'</span>'
     +'<span class="lead"></span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
+});
+
+MAYK.intro({
+  duration: 560,
+  run: function(){
+    var pre = document.createElement('pre');
+    pre.className = 'bbs-dial';
+    pre.setAttribute('aria-hidden', 'true');
+    pre.innerHTML = '<span id="bbs-txt"></span><span class="cur"></span>';
+    document.body.appendChild(pre);
+
+    var text = "ATDT 555-6295\nCONNECT 2400 / V.22bis\nLOGGING IN AS GUEST... OK\n\nENTERING MAYKSTUFF BBS...";
+    var target = document.getElementById('bbs-txt');
+    var i = 0;
+    var timer = setInterval(function(){
+      i += 2;
+      if(target) target.textContent = text.slice(0, i);
+      if(i >= text.length){
+        clearInterval(timer);
+        setTimeout(function(){
+          pre.classList.add('out');
+        }, 60);
+      }
+    }, 11);
+
+    window._bbsDialCleanup = function(){
+      clearInterval(timer);
+      if(pre.parentNode) pre.parentNode.removeChild(pre);
+    };
+  },
+  cleanup: function(){
+    if(window._bbsDialCleanup) window._bbsDialCleanup();
+  }
+});
+
+window.addEventListener('keydown', function(e){
+  if(e.ctrlKey || e.altKey || e.metaKey || document.documentElement.classList.contains('intro')) return;
+  if(e.key === '$'){
+    var k = document.querySelector('.kofi');
+    if(k) k.focus();
+    return;
+  }
+  var c = MAYK.KEYS.indexOf(e.key.toUpperCase());
+  var entries = document.querySelectorAll('.entry');
+  if(e.key.length === 1 && c >= 0 && c < entries.length){
+    entries[c].focus();
+  }
 });
 </script>
 <script>

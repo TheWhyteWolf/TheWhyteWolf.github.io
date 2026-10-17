@@ -7,6 +7,14 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{
@@ -52,15 +60,14 @@
 
   ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1rem; }
   .item{ display:block; text-decoration:none; color:inherit; }
+  .item--sub{ padding-left:1.3rem; }
   .item .row{ display:flex; align-items:baseline; gap:.5rem; }
   .item .name{ font-weight:700; color:var(--fg); transition:color .2s,text-shadow .2s; }
   .item .name::before{ content:"▸ "; color:var(--glow); opacity:.7; }
+  .item--sub .name::before{ content:"└ "; color:var(--dim); opacity:1; }
   .item:hover .name,.item:focus-visible .name{ color:var(--glow); text-shadow:0 0 10px rgba(164,201,75,.5); }
   .item .desc{ margin:.24rem 0 0 1.2rem; font-size:.8rem; opacity:.6; line-height:1.45; }
   .item:focus-visible{ outline:1px solid var(--glow); outline-offset:3px; }
-  .item.part{ padding-left:2ch; }
-  .item.part .name{ font-weight:400; }
-  .item.part .name::before{ content:"└ "; opacity:.55; }
 
   .badge{ margin-left:auto; font-size:.66rem; letter-spacing:.08em; opacity:.75; white-space:nowrap; }
   .badge::before{ content:"["; } .badge::after{ content:"]"; }
@@ -87,6 +94,9 @@
   .kofi .k-cup{ color:var(--glow); }
   .kofi:hover,.kofi:focus-visible{ box-shadow:0 0 18px rgba(164,201,75,.22); outline:none; }
   .kofi:hover .k-line,.kofi:focus-visible .k-line{ color:var(--glow); text-shadow:0 0 10px rgba(164,201,75,.5); }
+
+  /* ── glyph decode intro ── */
+  html.intro-run .item .name{ color:var(--glow); }
 </style>
 </head>
 <body>
@@ -109,12 +119,65 @@
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="cat"><h2>'+MAYK.esc(c.name)+'</h2><ul>'+x.itemsHTML+'</ul></section>'; },
-  item:function(it){ return '<li><a class="item'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it){ return '<li><a class="item'+(it.sub?' item--sub':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="row"><span class="name">'+MAYK.esc(it.name)+'</span><span class="badge badge--'+it.badge+'">'+it.badge+'</span></span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a></li>'; }
+});
+
+MAYK.intro({
+  duration: 420,
+  run: function(){
+    var glyphs = '#+*=%@&!?/\\~^';
+    var targets = [];
+    var brand = document.querySelector('.brand');
+    if(brand && brand.firstChild && brand.firstChild.nodeType === 3){
+      targets.push({ node: brand.firstChild, orig: brand.firstChild.nodeValue });
+    }
+    var names = document.querySelectorAll('.cat > h2, .item .name');
+    for(var i = 0; i < names.length; i++){
+      targets.push({ node: names[i], orig: names[i].textContent, isEl: true });
+    }
+    var t0 = performance.now();
+    var rafId = 0;
+    function frame(now){
+      var elapsed = now - t0;
+      for(var j = 0; j < targets.length; j++){
+        var t = targets[j], s = t.orig, out = '';
+        var len = s.length || 1;
+        for(var k = 0; k < s.length; k++){
+          var ch = s[k];
+          if(ch === ' '){ out += ' '; continue; }
+          var threshold = (k / len) * 280 + ((j * 17 + k * 31) % 90);
+          if(elapsed >= threshold){
+            out += ch;
+          } else {
+            out += glyphs[(Math.floor(elapsed / 28) + j * 7 + k * 13) % glyphs.length];
+          }
+        }
+        if(t.isEl) t.node.textContent = out;
+        else t.node.nodeValue = out;
+      }
+      if(elapsed < 400){
+        rafId = requestAnimationFrame(frame);
+      }
+    }
+    rafId = requestAnimationFrame(frame);
+    window._v2DecodeCleanup = function(){
+      cancelAnimationFrame(rafId);
+      for(var j = 0; j < targets.length; j++){
+        var t = targets[j];
+        if(t.isEl) t.node.textContent = t.orig;
+        else t.node.nodeValue = t.orig;
+      }
+    };
+  },
+  cleanup: function(){
+    if(window._v2DecodeCleanup) window._v2DecodeCleanup();
+  }
 });
 </script>
 <script>

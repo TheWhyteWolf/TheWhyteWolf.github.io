@@ -3,144 +3,356 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Projects and experiments by Whyte Erminae, as a teletext service — tools, ASCII art, plugins and standalone software.">
+<meta name="description" content="Projects and experiments by Whyte Erminae — broadcast on 1990s British Teletext: tools, ASCII art, plugins and software.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#000000">
-<title>maykstuff — Whyte Erminae</title>
+<title>MAYKFAX P100 — Whyte Erminae Teletext</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
+  @font-face{
+    font-family:"Bedstead";
+    src:url("fonts/bedstead.otf") format("opentype");
+    font-display:swap;
+  }
   *{box-sizing:border-box}
-  /* Mode 7 had eight colours and no in-between. */
   :root{
-    --blk:#000000; --red:#ff0000; --grn:#00ff00; --yel:#ffff00;
-    --blu:#0000ff; --mag:#ff00ff; --cyn:#00ffff; --wht:#ffffff;
-    --bg:#000000;
+    --outer:#121412; --life:#7b8c5a;
+    --blk:#000000; --wht:#ffffff; --yel:#ffff00; --cyn:#00ffff;
+    --grn:#00ff00; --mag:#ff00ff; --red:#ff0000; --blu:#0000cc;
   }
   html,body{margin:0}
   body{
-    background:var(--bg); color:var(--wht);
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
-    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:none;
+    background:var(--outer); color:var(--wht);
+    font-family:"Bedstead",ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    font-synthesis:none;
+    min-height:100vh; overflow-x:hidden;
+    -webkit-font-smoothing:none; -moz-osx-font-smoothing:grayscale;
+    padding:clamp(.5rem,2.5vw,2rem) clamp(.25rem,1.5vw,1rem);
   }
   #life{
-    position:fixed; inset:0; margin:0; z-index:0; color:var(--blu); opacity:.5;
-    font-size:16px; line-height:15px; white-space:pre; overflow:hidden;
+    position:fixed; inset:0; margin:0; z-index:0;
+    color:var(--life); opacity:.08;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden;
     pointer-events:none; user-select:none;
   }
-  main{ position:relative; z-index:1; max-width:52rem; margin:0 auto;
-        padding:clamp(.6rem,2.5vw,1.6rem); }
-  .tt{ background:var(--blk); padding:clamp(.6rem,2vw,1.1rem);
-       font-size:clamp(.82rem,2.5vw,1rem); line-height:1.55; letter-spacing:.04em; }
 
-  /* header strip — service, page number, clock */
-  .hdr{ display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:baseline;
-        font-weight:700; margin-bottom:.9rem; }
-  .hdr .svc{ color:var(--cyn); }
-  .hdr .pno{ color:var(--wht); background:var(--red); padding:0 .45ch; }
-  .hdr .clk{ color:var(--grn); margin-left:auto; }
+  .tt-screen{
+    position:relative; z-index:1;
+    max-width:780px; margin:0 auto;
+    background:var(--blk); color:var(--wht);
+    border:4px solid #1e221c;
+    box-shadow:0 0 0 2px #000, 0 16px 48px rgba(0,0,0,.85);
+    padding:clamp(.6rem,2vw,1.25rem) clamp(.5rem,2.2vw,1.5rem);
+    font-size:clamp(13px,2.1vw,19px);
+    line-height:1.35;
+  }
 
-  /* double-height, the Mode 7 way: one row of characters, twice as tall */
-  .dh{ display:inline-block; margin:0 0 .55rem; font-weight:700;
-       font-size:clamp(1.7rem,7.5vw,2.8rem); line-height:1;
-       transform:scaleY(1.3); transform-origin:left top; color:var(--yel); }
-  .strap{ margin:.5rem 0 1.3rem; color:var(--grn); text-transform:uppercase; }
-  .strap .blk{ color:var(--mag); }
+  /* Row 0: Teletext Header */
+  .tt-hdr{
+    display:flex; justify-content:space-between; align-items:baseline;
+    gap:.5ch; white-space:pre; overflow:hidden;
+    margin-bottom:.35rem; font-weight:700;
+  }
+  .tt-hdr .pnum{ color:var(--wht); min-width:4ch; }
+  .tt-hdr.searching .pnum,
+  .tt-hdr.searching .roll{ color:var(--grn); }
+  .tt-hdr .svc{ color:var(--cyn); letter-spacing:.06em; }
+  .tt-hdr .roll{ color:var(--wht); }
+  .tt-hdr .date{ color:var(--wht); }
+  .tt-hdr .clk{ color:var(--yel); }
 
-  /* one category = one teletext page */
-  .pg{ margin-bottom:1.5rem; }
-  .pg h2{ margin:0 0 .5rem; font-size:1em; font-weight:700; text-transform:uppercase;
-          color:var(--blk); background:var(--cyn); padding:0 .6ch;
-          display:flex; flex-wrap:wrap; gap:.8ch; align-items:baseline; }
-  .pg h2 .pn{ margin-left:auto; color:var(--blk); opacity:.75; }
+  /* Double-height Teletext Banner */
+  .tt-banner{
+    background:var(--blu); color:var(--yel);
+    padding:.35rem .6rem; margin-bottom:.35rem;
+    border-top:3px solid var(--yel); border-bottom:3px solid var(--yel);
+    display:flex; justify-content:space-between; align-items:center;
+    overflow:hidden;
+  }
+  .tt-banner .mosaic{
+    color:var(--cyn); font-size:.9em; letter-spacing:.05em; user-select:none;
+  }
+  .tt-banner h1{
+    margin:0; font-size:1.15em; letter-spacing:.22em; text-transform:uppercase;
+    transform:scaleY(1.75); transform-origin:50% 50%;
+    padding:.22em 0; color:var(--yel); text-align:center;
+  }
+  .tt-sub{
+    background:var(--blk); color:var(--cyn);
+    text-align:center; padding:.15rem .4rem .45rem;
+    letter-spacing:.08em; text-transform:uppercase; font-size:.92em;
+    border-bottom:2px solid var(--blu); margin-bottom:.75rem;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:.4rem;
+  }
+  .tt-sub .hint{ color:var(--grn); }
 
-  .row{ display:flex; flex-wrap:wrap; align-items:baseline; gap:.55ch;
-        text-decoration:none; color:inherit; padding:.12rem 0; }
-  .row .nm{ color:var(--yel); font-weight:700; }
-  .row .dots{ flex:1 1 12px; align-self:stretch; min-width:8px;
-              border-bottom:2px dotted #003; margin-bottom:.45em; }
-  .row .bdg{ font-weight:700; }
-  .bdg--live{ color:var(--grn); } .bdg--src{ color:var(--cyn); } .bdg--wip{ color:var(--red); }
-  .row .ds{ flex:1 1 100%; color:var(--wht); opacity:.72; font-size:.92em;
-            margin:.05rem 0 .25rem 2ch; }
-  .row:hover .nm,.row:focus-visible .nm{ color:var(--blk); background:var(--yel); }
-  .row:focus-visible{ outline:2px solid var(--wht); outline-offset:1px; }
-  .row.part{ padding-left:2ch; }
-  .row.part .nm{ color:var(--cyn); font-weight:400; }
-  .row.part .nm::before{ content:"\2514 "; color:var(--blu); }
-  .row.part .ds{ margin-left:4ch; }
-  .row.part:hover .nm,.row.part:focus-visible .nm{ color:var(--blk); background:var(--cyn); }
+  /* Category Sections */
+  .tt-cat{ margin-bottom:1.1rem; }
+  .tt-cat-bar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:.1rem .5ch; margin:0 0 .35rem;
+    font-size:1em; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  }
+  .tt-cat--0 .tt-cat-bar{ background:var(--red); color:var(--wht); }
+  .tt-cat--1 .tt-cat-bar{ background:var(--grn); color:var(--blk); }
+  .tt-cat--2 .tt-cat-bar{ background:var(--yel); color:var(--blk); }
+  .tt-cat--3 .tt-cat-bar{ background:var(--mag); color:var(--wht); }
+  .tt-cat--4 .tt-cat-bar{ background:var(--cyn); color:var(--blk); }
+  .tt-cat--5 .tt-cat-bar{ background:var(--blu); color:var(--yel); }
+  .tt-cat--6 .tt-cat-bar{ background:var(--wht); color:var(--blk); }
 
-  /* ko-fi — the page nobody ever typed in */
-  .kofi{ display:block; text-decoration:none; margin:1.6rem 0 1.1rem;
-         color:var(--wht); background:var(--mag); padding:.3rem .6ch; font-weight:700; }
-  .kofi .p{ background:var(--blk); color:var(--yel); padding:0 .45ch; }
-  .kofi small{ display:block; font-weight:400; opacity:.9; margin-top:.15rem; }
-  .kofi:hover,.kofi:focus-visible{ background:var(--yel); color:var(--blk); outline:none; }
-  .kofi:hover .p,.kofi:focus-visible .p{ color:var(--mag); }
+  .tt-item{
+    display:block; text-decoration:none; color:inherit;
+    padding:.2rem .4ch; margin-bottom:.25rem;
+  }
+  .tt-item--sub{ padding-left:2ch; }
+  .tt-item--sub .nm::before{ content:"+ "; color:var(--yel); }
+  .tt-item-top{
+    display:flex; align-items:baseline; gap:.4ch;
+  }
+  .tt-item .nm{ color:var(--wht); font-weight:700; }
+  .tt-item .dots{
+    flex:1 1 2ch; overflow:hidden; white-space:nowrap;
+    color:var(--blu);
+  }
+  .tt-item .dots::before{
+    content:"........................................................................";
+    letter-spacing:.15ch;
+  }
+  .tt-item .pg{ color:var(--yel); font-weight:700; }
+  .tt-item .bdg{
+    font-size:.82em; padding:0 .35ch; text-transform:uppercase; font-weight:700;
+  }
+  .bdg--live{ color:var(--grn); }
+  .bdg--src{ color:var(--cyn); }
+  .bdg--wip{
+    color:var(--blk); background:var(--red);
+    animation:tt-flash 1s steps(1) infinite;
+  }
+  @keyframes tt-flash{ 50%{ opacity:0 } }
+  @media (prefers-reduced-motion: reduce){ .bdg--wip{ animation:none } }
 
-  /* fastext bar — the four coloured buttons along the bottom */
-  .fast{ display:flex; flex-wrap:wrap; gap:.5rem 1.4rem; margin-top:1.2rem;
-         padding-top:.7rem; border-top:2px solid #003; font-size:.9em; }
-  .fast b{ font-weight:700; }
-  .f-red b{ color:var(--red); } .f-grn b{ color:var(--grn); }
-  .f-yel b{ color:var(--yel); } .f-cyn b{ color:var(--cyn); }
-  .fast .tally{ margin-left:auto; color:var(--wht); opacity:.6; }
+  .tt-item .desc{
+    margin:.05rem 0 0 1.5ch; color:var(--cyn); font-size:.9em; line-height:1.3;
+  }
+  .tt-cat--1 .tt-item .desc, .tt-cat--4 .tt-item .desc{ color:var(--grn); }
+  .tt-cat--3 .tt-item .desc, .tt-cat--6 .tt-item .desc{ color:var(--yel); }
+
+  .tt-item:hover, .tt-item:focus-visible{
+    background:var(--blu); outline:none;
+  }
+  .tt-item:hover .nm, .tt-item:focus-visible .nm{ color:var(--yel); }
+  .tt-item:hover .desc, .tt-item:focus-visible .desc{ color:var(--wht); }
+
+  /* P888 Ko-fi Subtitles & Support Box */
+  .tt-kofi{
+    display:block; text-decoration:none;
+    border:2px solid var(--yel); background:var(--blk);
+    padding:.45rem .8ch; margin:1.1rem 0 .9rem;
+    color:var(--wht);
+  }
+  .tt-kofi-top{
+    display:flex; justify-content:space-between; align-items:baseline;
+    color:var(--yel); font-weight:700;
+  }
+  .tt-kofi-top .p888{ background:var(--yel); color:var(--blk); padding:0 .4ch; margin-right:.5ch; }
+  .tt-kofi-sub{ color:var(--cyn); font-size:.9em; margin-top:.15rem; display:block; }
+  .tt-kofi:hover, .tt-kofi:focus-visible{
+    background:var(--blu); border-color:var(--cyn); outline:none;
+  }
+
+  /* Fastext Bar */
+  .tt-fastext{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:.4ch;
+    margin-top:.6rem; padding-top:.35rem; border-top:2px solid var(--blu);
+    font-weight:700; text-align:center; font-size:.92em;
+  }
+  .ft-btn{
+    display:block; text-decoration:none; padding:.15rem .3ch;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .ft--red{ background:var(--red); color:var(--wht); }
+  .ft--grn{ background:var(--grn); color:var(--blk); }
+  .ft--yel{ background:var(--yel); color:var(--blk); }
+  .ft--cyn{ background:var(--cyn); color:var(--blk); }
+  .ft-btn:hover, .ft-btn:focus-visible{ filter:brightness(1.2); outline:2px solid var(--wht); }
+
+  /* ── Teletext page search & raster wipe intro ── */
+  html.intro .tt-body{ clip-path:inset(0 0 100% 0); }
+  html.intro-run .tt-body{
+    animation:tt-raster .34s steps(24) .22s both;
+  }
+  @keyframes tt-raster{
+    from{ clip-path:inset(0 0 100% 0); }
+    to{ clip-path:inset(0 0 0 0); }
+  }
+
+  @media (max-width:520px){
+    .tt-hdr .date{ display:none; }
+    .tt-banner .mosaic{ display:none; }
+  }
 </style>
 </head>
 <body>
 <pre id="life" aria-hidden="true"></pre>
 
-<main>
-  <div class="tt">
-    <div class="hdr">
-      <span class="svc">MAYKSTUFF</span>
-      <span class="pno">P100</span>
-      <span class="clk" id="clk">&nbsp;</span>
-    </div>
+<main class="tt-screen" aria-label="MAYKFAX Teletext Page 100">
+  <header class="tt-hdr" id="tt-hdr">
+    <span><span class="pnum" id="tt-pnum">P100</span> <span class="svc">MAYKFAX</span> <span class="roll" id="tt-roll">100</span></span>
+    <span><span class="date" id="tt-date">Sat 17 Oct</span> <span class="clk" id="tt-clk">00:00/00</span></span>
+  </header>
 
-    <h1 class="dh">MAYKSTUFF</h1>
-    <p class="strap"><span class="blk">&#x2590;&#x2588;&#x258c;</span> the archive of Whyte Erminae</p>
+  <div class="tt-body">
+    <div class="tt-banner">
+      <span class="mosaic" aria-hidden="true">▛▀▜▞▚</span>
+      <h1>MAYKSTUFF</h1>
+      <span class="mosaic" aria-hidden="true">▞▚▛▀▜</span>
+    </div>
+    <div class="tt-sub">
+      <span>THE ARCHIVE OF WHYTE ERMINAE</span>
+      <span class="hint">KEY PAGE NO. OR CLICK</span>
+    </div>
 
     <div id="grid"></div>
 
-    <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
-      <span class="p">P199</span> SUPPORT &#x25b8; BUY ME A KO-FI c[_]
-      <small>one coffee keeps the service on air &#x2014; thank you</small>
+    <a class="tt-kofi" id="p888" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener" data-page="888">
+      <span class="tt-kofi-top">
+        <span><span class="p888">888</span>TIP THE ENGINEER — BUY WHYTE A KO-FI c[_]</span>
+        <span>P888</span>
+      </span>
+      <span class="tt-kofi-sub">Subtitles &amp; viewer support · keeps the transmitter on air</span>
     </a>
 
-    <div class="fast">
-      <span class="f-red"><b>&#x25a0;</b> LIVE = runs in browser</span>
-      <span class="f-cyn"><b>&#x25a0;</b> SRC = source repo</span>
-      <span class="f-yel"><b>&#x25a0;</b> WIP = building</span>
-      <span class="tally" id="tally"></span>
-    </div>
+    <nav class="tt-fastext" aria-label="Fastext navigation">
+      <a class="ft-btn ft--red" href="#p200">WebApps</a>
+      <a class="ft-btn ft--grn" href="#p400">LifeBranch</a>
+      <a class="ft-btn ft--yel" href="#p600">Audio</a>
+      <a class="ft-btn ft--cyn" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">Ko-fi 888</a>
+    </nav>
   </div>
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
-MAYK.render({ mount:'#grid',
-  category:function(c,x){
-    return '<section class="pg"><h2>'+MAYK.esc(c.name)
-      +'<span class="pn">P1'+MAYK.pad2(x.ci+1)+'</span></h2>'+x.itemsHTML+'</section>'; },
-  item:function(it){ return '<a class="row'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
-    +'<span class="nm">'+MAYK.esc(it.name)+'</span><span class="dots"></span>'
-    +'<span class="bdg bdg--'+it.badge+'">'+it.badge.toUpperCase()+'</span>'
-    +'<span class="ds">'+MAYK.esc(it.desc)+'</span></a>'; }
+MAYK.render({
+  mount: '#grid',
+  category: function(c, x){
+    var basePage = (x.ci + 2) * 100;
+    return '<section class="tt-cat tt-cat--'+x.ci+'" id="p'+basePage+'" data-page="'+basePage+'">'
+      +'<h2 class="tt-cat-bar"><span>'+MAYK.esc(c.name)+'</span><span>P'+basePage+'</span></h2>'
+      +x.itemsHTML+'</section>';
+  },
+  item: function(it, x){
+    var pageNo = (x.ci + 2) * 100 + (x.ii + 1);
+    return '<a class="tt-item'+(it.sub?' tt-item--sub':'')+'" id="p'+pageNo+'" data-page="'+pageNo+'" href="'+it.url+'" target="_blank" rel="noopener">'
+      +'<span class="tt-item-top">'
+      +'<span class="nm">'+MAYK.esc(it.name)+'</span>'
+      +'<span class="dots" aria-hidden="true"></span>'
+      +'<span class="bdg bdg--'+it.badge+'">'+it.badge+'</span>'
+      +'<span class="pg">'+pageNo+'</span>'
+      +'</span>'
+      +'<p class="desc">'+MAYK.esc(it.desc)+'</p></a>';
+  }
 });
 
-/* The header clock and the page tally, the way a teletext page carried them. */
+/* Live Teletext Clock */
 (function(){
-  var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var clk=document.getElementById('clk');
+  var dEl = document.getElementById('tt-date');
+  var cEl = document.getElementById('tt-clk');
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function tick(){
-    var d=new Date();
-    clk.textContent=DAYS[d.getDay()]+' '+MAYK.pad2(d.getDate())+' '+MONS[d.getMonth()]
-      +' '+MAYK.pad2(d.getHours())+':'+MAYK.pad2(d.getMinutes())+':'+MAYK.pad2(d.getSeconds());
+    var d = new Date();
+    if(dEl) dEl.textContent = days[d.getDay()]+' '+MAYK.pad2(d.getDate())+' '+mons[d.getMonth()];
+    if(cEl) cEl.textContent = MAYK.pad2(d.getHours())+':'+MAYK.pad2(d.getMinutes())+'/'+MAYK.pad2(d.getSeconds());
   }
-  tick(); setInterval(tick,1000);
-  var n=MAYK.counts();
-  document.getElementById('tally').textContent=n.items+' ITEMS / '+n.categories+' PAGES';
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* Teletext Page Search Intro */
+MAYK.intro({
+  duration: 580,
+  run: function(){
+    var hdr = document.getElementById('tt-hdr');
+    var pnum = document.getElementById('tt-pnum');
+    var roll = document.getElementById('tt-roll');
+    if(!hdr || !pnum || !roll) return;
+    hdr.classList.add('searching');
+    var steps = [
+      { p:'P1..', r:'114' },
+      { p:'P10.', r:'138' },
+      { p:'P100', r:'152' },
+      { p:'P100', r:'169' },
+      { p:'P100', r:'184' },
+      { p:'P100', r:'197' },
+      { p:'P100', r:'100' }
+    ];
+    var idx = 0;
+    pnum.textContent = steps[0].p;
+    roll.textContent = steps[0].r;
+    var timer = setInterval(function(){
+      idx++;
+      if(idx < steps.length){
+        pnum.textContent = steps[idx].p;
+        roll.textContent = steps[idx].r;
+        if(idx === steps.length - 1){
+          hdr.classList.remove('searching');
+        }
+      } else {
+        clearInterval(timer);
+      }
+    }, 34);
+    window._ttCleanup = function(){
+      clearInterval(timer);
+      hdr.classList.remove('searching');
+      pnum.textContent = 'P100';
+      roll.textContent = '100';
+    };
+  },
+  cleanup: function(){
+    if(window._ttCleanup) window._ttCleanup();
+  }
+});
+
+/* Interactive 3-digit Teletext Page Number Keying (e.g. 201, 301, 888) */
+(function(){
+  var buf = '';
+  var pnum = document.getElementById('tt-pnum');
+  var resetTimer = 0;
+  window.addEventListener('keydown', function(e){
+    if(e.ctrlKey || e.altKey || e.metaKey || document.documentElement.classList.contains('intro')) return;
+    if(e.key >= '0' && e.key <= '9'){
+      clearTimeout(resetTimer);
+      if(buf.length >= 3) buf = '';
+      buf += e.key;
+      if(pnum) pnum.textContent = 'P' + (buf + '...').slice(0, 3);
+      if(buf.length === 3){
+        var target = document.querySelector('[data-page="'+buf+'"]');
+        if(target){
+          target.scrollIntoView({ behavior:'smooth', block:'center' });
+          target.focus();
+        }
+        resetTimer = setTimeout(function(){
+          buf = '';
+          if(pnum) pnum.textContent = 'P100';
+        }, 1200);
+      } else {
+        resetTimer = setTimeout(function(){
+          buf = '';
+          if(pnum) pnum.textContent = 'P100';
+        }, 2000);
+      }
+    }
+  });
 })();
 </script>
 <script>
@@ -148,39 +360,26 @@ MAYK.render({ mount:'#grid',
   var pre=document.getElementById('life'); if(!pre) return;
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var cols,rows,grid,nxt,cw,ch,tick=0;
-  var DENSITY=0.10, ALIVE='█', DEAD=' ', INTERVAL=600, RESEED=500;
-  function measure(){
-    var cs=getComputedStyle(pre), s=document.createElement('span');
+  var DENSITY=0.08, ALIVE='▚', DEAD=' ', INTERVAL=580, RESEED=540;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
     s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
     s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
     s.textContent='##########'; document.body.appendChild(s);
     cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
-    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9;
-  }
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
   function seed(){ grid=new Uint8Array(cols*rows);
     for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
-  function setup(){ measure();
-    cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
     rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
-  function step(){
-    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){
-      var n=0;
-      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
-        if(!dx&&!dy)continue;
-        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)];
-      }
-      var a=grid[y*cols+x];
-      nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0;
-    }
-    var t=grid; grid=nxt; nxt=t;
-  }
-  function render(){ var out='',i=0;
-    for(var y=0;y<rows;y++){ var l='';
-      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD;
-      out+=l+'\n'; } pre.textContent=out; }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
   function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
-  setup();
-  var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
   if(!reduce) setInterval(loop,INTERVAL);
 })();
 </script>

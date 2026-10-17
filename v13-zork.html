@@ -3,10 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Projects and experiments by Whyte Erminae, as an adventure transcript — tools, ASCII art, plugins and standalone software.">
+<meta name="description" content="Projects and experiments by Whyte Erminae, as an adventure transcript — tools, ASCII art, audio and standalone software.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{
@@ -66,6 +74,28 @@
   .cur{ display:inline-block; width:.6ch; background:var(--glow); color:transparent;
         animation:blink 1.1s steps(1) infinite; }
   @keyframes blink{ 50%{ opacity:0 } }
+
+  /* ── Infocom Z-Machine transcript boot intro ── */
+  html.intro .status{ opacity:0; }
+  html.intro main>*:not(.banner):not(.copy):not(#look-cmd){ opacity:0; }
+  html.intro footer{ opacity:0; }
+  html.intro-run .status{
+    animation:zk-bar .12s steps(3) both;
+  }
+  html.intro-run main>*:not(.banner):not(.copy):not(#look-cmd){
+    animation:zk-feed .38s steps(12,end) 150ms both;
+  }
+  html.intro-run footer{
+    animation:zk-bar .18s steps(2) 380ms both;
+  }
+  @keyframes zk-bar{
+    from{ opacity:0; }
+    to{ opacity:1; }
+  }
+  @keyframes zk-feed{
+    from{ opacity:0; transform:translateY(calc(1.7em * 6)); }
+    to{ opacity:1; transform:none; }
+  }
 </style>
 </head>
 <body>
@@ -82,7 +112,7 @@
   <p class="copy">Copyright &#x00a9; 2026 Whyte Erminae. All rights reserved.<br>
   Release <span id="rel">1</span> / Serial number <span id="ser">000000</span> / Interpreter 7 Version C</p>
 
-  <p class="cmd">LOOK</p>
+  <p class="cmd" id="look-cmd">LOOK</p>
   <p class="prose">You are standing in an open field west of a white repository, with a
   boarded front door. Conway's Game of Life plays quietly on every surface. Passages lead
   off in several directions, and a small mailbox stands here, unread.</p>
@@ -101,6 +131,7 @@
 &#x00b7; <b>wip</b> is still being built. Indented things are inside the thing above them.</footer>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 /* Each category is a room; each project is a thing you can examine. Parts of a
    larger project are things found inside it, so the parent announces them. */
@@ -145,6 +176,26 @@ MAYK.render({ mount:'#grid',
   document.getElementById('pts').textContent = n.items;
   document.getElementById('pts2').textContent = n.items;
   document.getElementById('mv2').textContent = n.categories;
+})();
+
+(function(){
+  var timers = [];
+  MAYK.intro({
+    duration: 540,
+    run: function(){
+      var lk = document.getElementById('look-cmd');
+      if(!lk) return;
+      var steps = ['_', 'L_', 'LO_', 'LOO_', 'LOOK'];
+      steps.forEach(function(txt, idx){
+        timers.push(setTimeout(function(){ lk.textContent = txt; }, idx * 32));
+      });
+    },
+    cleanup: function(){
+      timers.forEach(clearTimeout);
+      var lk = document.getElementById('look-cmd');
+      if(lk) lk.textContent = 'LOOK';
+    }
+  });
 })();
 </script>
 <script>

@@ -7,6 +7,14 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{ --bg:#121412; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --panel:#171a14; --shadow:rgba(0,0,0,.55); }
@@ -23,12 +31,34 @@
   .menubar .sys{ color:var(--glow); background:var(--bg); padding:0 .4rem; margin-right:.2rem; border-radius:2px; }
   .menubar span.mi{ padding:0 .3rem; }
   .menubar span.mi b{ color:var(--bg); }
-  .statusbar{ margin-top:clamp(1rem,3vw,1.8rem); }
+  .statusbar{ margin-top:0; }
   .statusbar b{ color:var(--bg); background:var(--glow); padding:0 .25rem; margin-right:.1rem; border-radius:2px; }
 
-  .desktop{ padding:clamp(1rem,3vw,2rem) clamp(1rem,3vw,2rem) 0; }
-  .title-strip{ margin:0 0 1.3rem; letter-spacing:.24em; text-transform:uppercase; font-size:.9rem; opacity:.75; }
+  .desktop{
+    padding:clamp(1rem,3vw,2rem) clamp(1rem,3vw,2rem) 1.4rem;
+    background:conic-gradient(rgba(57,65,43,.42) 25%, transparent 0 50%, rgba(57,65,43,.42) 0 75%, transparent 0) 0 0 / 4px 4px;
+    border-left:1px solid var(--dim); border-right:1px solid var(--dim);
+  }
+  .title-strip{ display:inline-block; background:var(--bg); padding:.15rem .55rem; border:1px solid var(--dim);
+    margin:0 0 1.3rem; letter-spacing:.24em; text-transform:uppercase; font-size:.9rem; opacity:.85; }
   .title-strip b{ color:var(--glow); font-weight:700; }
+
+  /* ── Turbo Vision desktop paint & window pop-in intro ── */
+  html.intro .menubar, html.intro .statusbar, html.intro .title-strip, html.intro .win{ opacity:0 }
+  html.intro-run .menubar{ opacity:1; animation:tv-bar-top .09s steps(3) both }
+  html.intro-run .statusbar{ opacity:1; animation:tv-bar-bot .09s steps(3) both }
+  html.intro-run .desktop{ animation:tv-desk .14s steps(6) .05s both }
+  html.intro-run .title-strip, html.intro-run .win{
+    animation:tv-win .12s steps(4) calc(150ms + var(--i,0)*65ms) forwards;
+  }
+  @keyframes tv-bar-top{ from{ transform:translateY(-100%) } to{ transform:none } }
+  @keyframes tv-bar-bot{ from{ transform:translateY(100%) } to{ transform:none } }
+  @keyframes tv-desk{ from{ clip-path:inset(0 0 100% 0) } to{ clip-path:inset(0) } }
+  @keyframes tv-win{
+    0%{ opacity:1; transform:scale(.25); color:transparent; }
+    75%{ opacity:1; transform:scale(.95); color:transparent; }
+    100%{ opacity:1; transform:none; color:inherit; }
+  }
 
   .grid{ display:grid; gap:1.5rem 1.3rem; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); align-items:start; }
   .win{ border:1px solid var(--fg); background:var(--bg); box-shadow:3px 2px 0 var(--shadow); position:relative; }
@@ -39,9 +69,11 @@
   .win .body{ padding:.55rem .6rem .7rem; }
 
   .row{ display:block; text-decoration:none; color:inherit; padding:.22rem .35rem; }
+  .row--sub{ padding-left:1.5rem; }
   .row .top{ display:flex; align-items:baseline; gap:.5rem; }
   .row .nm{ font-weight:700; }
   .row .nm::before{ content:"■ "; color:var(--glow); font-size:.7em; }
+  .row--sub .nm::before{ content:"└ "; color:var(--dim); font-size:.9em; }
   .row .bdg{ margin-left:auto; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
   .row .bdg--live{ color:var(--glow); opacity:1; }
   .row .bdg--wip{ opacity:.45; }
@@ -49,9 +81,6 @@
   .row:hover,.row:focus-visible{ background:var(--fg); color:var(--bg); outline:none; }
   .row:hover .nm::before,.row:focus-visible .nm::before{ color:var(--bg); }
   .row:hover .bdg,.row:hover .desc,.row:focus-visible .bdg,.row:focus-visible .desc{ color:var(--bg); opacity:1; }
-  .row.part{ padding-left:calc(.35rem + 2ch); }
-  .row.part .nm{ font-weight:400; }
-  .row.part .nm::before{ content:"└ "; font-size:1em; opacity:.7; }
 
   /* ko-fi support — a system dialog */
   .kofi-win{ max-width:360px; margin:1.8rem auto 0; }
@@ -100,6 +129,7 @@
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ var s=c.items.length>3;
@@ -107,9 +137,14 @@ MAYK.render({ mount:'#grid',
       +'<span class="name">'+MAYK.esc(c.name)+'</span><span class="ctl">[↕]</span></div>'
       +'<div class="body">'+x.itemsHTML+'</div>'
       +(s?'<div class="sb" aria-hidden="true">▲<span class="thumb">█</span>▼</div>':'')+'</section>'; },
-  item:function(it){ return '<a class="row'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it){ return '<a class="row'+(it.sub?' row--sub':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="top"><span class="nm">'+MAYK.esc(it.name)+'</span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
+});
+
+MAYK.intro({
+  stagger: ['.title-strip, .win'],
+  duration: 600
 });
 </script>
 <script>

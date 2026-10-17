@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae — punched on 80-column IBM Hollerith cards.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121412">
+<title>maykstuff — 80-Column Punch Card Deck</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#121412; --card:#191d14; --card-hi:#1f2419;
+    --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --hole:#0a0b09;
+  }
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+  #life{
+    position:fixed; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.07;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden;
+    pointer-events:none; user-select:none;
+  }
+
+  main{
+    position:relative; z-index:1; max-width:1080px; margin:0 auto;
+    padding:clamp(1.4rem,4vw,3rem) clamp(1rem,3vw,2rem);
+  }
+
+  /* Master Header Card */
+  .deck-hdr{
+    position:relative; background:var(--card); border:1px solid var(--fg);
+    clip-path:polygon(24px 0, 100% 0, 100% 100%, 0 100%, 0 24px);
+    padding:.75rem 1.3rem 1rem 1.8rem; margin-bottom:1.5rem;
+    box-shadow:4px 4px 0 rgba(0,0,0,.5);
+  }
+  /* Diagonal corner cut border line */
+  .deck-hdr::before{
+    content:""; position:absolute; top:0; left:0; width:26px; height:26px;
+    background:linear-gradient(135deg, transparent 16px, var(--fg) 16.5px 18px, transparent 18.5px);
+    pointer-events:none;
+  }
+  .punch-card::before, .kofi-card::before{
+    content:""; position:absolute; top:0; left:0; width:22px; height:22px;
+    background:linear-gradient(135deg, transparent 13.2px, var(--fg) 13.7px 15.2px, transparent 15.7px);
+    pointer-events:none;
+  }
+  .interp{
+    font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--glow);
+    border-bottom:1px dotted var(--dim); padding-bottom:.35rem; margin-bottom:.5rem;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:.4rem;
+  }
+  .holes-strip{
+    font-size:.75rem; line-height:1.1; letter-spacing:.18em; color:var(--hole);
+    text-shadow:0 0 1px var(--fg); overflow:hidden; white-space:nowrap;
+    margin-bottom:.5rem; user-select:none;
+  }
+  .holes-strip .lit{ color:var(--glow); text-shadow:0 0 6px rgba(164,201,75,.5); }
+  .deck-title{
+    display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.6rem;
+  }
+  .deck-title h1{
+    margin:0; font-size:clamp(1.3rem,3.4vw,2rem); letter-spacing:.24em;
+    text-transform:uppercase; color:var(--glow);
+  }
+  .deck-title .meta{ font-size:.75rem; opacity:.65; letter-spacing:.08em; }
+  .col-ruler{
+    margin-top:.55rem; padding-top:.3rem; border-top:1px solid var(--dim);
+    font-size:.62rem; letter-spacing:.19em; opacity:.42; overflow:hidden; white-space:nowrap;
+    user-select:none;
+  }
+
+  /* Deck Grid */
+  .grid{
+    display:grid; gap:1.4rem; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    align-items:start;
+  }
+  .punch-card{
+    position:relative; background:var(--card); border:1px solid var(--fg);
+    clip-path:polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
+    padding:.65rem 1.1rem .9rem 1.4rem;
+    box-shadow:4px 4px 0 rgba(0,0,0,.45);
+    transition:border-color .2s, background .2s;
+  }
+  .punch-card:hover{ border-color:var(--glow); background:var(--card-hi); }
+
+  .card-top{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:.78rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--glow); border-bottom:1px solid var(--dim); padding-bottom:.35rem; margin-bottom:.4rem;
+  }
+  .card-top .seq{ font-size:.66rem; color:var(--fg); opacity:.65; }
+  .card-punches{
+    font-size:.68rem; letter-spacing:.22em; color:var(--dim);
+    overflow:hidden; white-space:nowrap; margin-bottom:.55rem; user-select:none;
+  }
+  .card-punches b{ color:var(--glow); font-weight:400; }
+
+  .zone-row{
+    display:block; text-decoration:none; color:inherit;
+    padding:.34rem .4rem; border-top:1px dashed rgba(57,65,43,.6);
+    transition:background .15s;
+  }
+  .zone-row:first-of-type{ border-top:0; }
+  .zone-row--sub{ padding-left:1.5rem; }
+  .zone-row--sub .nm::before{ content:"└ "; color:var(--dim); font-weight:400; }
+  .zone-top{ display:flex; align-items:baseline; gap:.45rem; }
+  .zone-top .rnum{ font-size:.66rem; color:var(--dim); min-width:2.2ch; }
+  .zone-top .punch{ color:var(--fg); font-size:.75rem; letter-spacing:.1em; transition:color .15s; }
+  .zone-top .nm{ font-weight:700; color:var(--fg); transition:color .15s, text-shadow .15s; }
+  .zone-top .bdg{
+    margin-left:auto; font-size:.64rem; letter-spacing:.08em; text-transform:uppercase;
+    opacity:.75;
+  }
+  .zone-top .bdg--live{ color:var(--glow); opacity:1; }
+  .zone-top .bdg--wip{ opacity:.45; }
+  .zone-desc{
+    margin:.14rem 0 0 4.6ch; font-size:.76rem; opacity:.56; line-height:1.4;
+  }
+  .zone-row:hover, .zone-row:focus-visible{
+    background:rgba(164,201,75,.07); outline:none;
+  }
+  .zone-row:hover .nm, .zone-row:focus-visible .nm,
+  .zone-row:hover .punch, .zone-row:focus-visible .punch{
+    color:var(--glow); text-shadow:0 0 8px rgba(164,201,75,.5);
+  }
+
+  /* Ko-fi Job Control Card (JCL //KOFI EXEC) */
+  .kofi-card{
+    display:block; max-width:680px; margin:1.7rem auto 0;
+    position:relative; background:var(--card); border:1px solid var(--glow);
+    clip-path:polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
+    padding:.75rem 1.2rem .85rem 1.5rem; text-decoration:none; color:var(--fg);
+    box-shadow:4px 4px 0 rgba(0,0,0,.5); transition:background .2s, box-shadow .2s;
+  }
+  .kofi-card .jcl{ color:var(--glow); font-weight:700; font-size:.82rem; letter-spacing:.1em; display:block; }
+  .kofi-card .sub{ font-size:.74rem; opacity:.65; margin-top:.25rem; display:block; letter-spacing:.06em; }
+  .kofi-card:hover, .kofi-card:focus-visible{
+    background:var(--card-hi); box-shadow:4px 4px 0 rgba(164,201,75,.25); outline:none;
+  }
+
+  footer{
+    margin-top:1.5rem; text-align:center; font-size:.72rem; opacity:.55; letter-spacing:.12em;
+  }
+
+  /* ── IBM 029 Card Hopper Feed Intro ── */
+  html.intro .deck-hdr, html.intro .punch-card, html.intro .kofi-card{ opacity:0 }
+  html.intro-run .deck-hdr{
+    animation:card-feed .16s steps(5) both;
+  }
+  html.intro-run .punch-card, html.intro-run .kofi-card{
+    animation:card-feed .18s steps(6) calc(80ms + var(--i,0)*75ms) forwards;
+  }
+  @keyframes card-feed{
+    0%{ opacity:1; transform:translate(48px, -18px); }
+    80%{ opacity:1; transform:translate(-3px, 0); }
+    100%{ opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+<pre id="life" aria-hidden="true"></pre>
+
+<main>
+  <header class="deck-hdr">
+    <div class="interp">
+      <span>//MAYKJOB JOB (001),'WHYTE ERMINAE',CLASS=A,MSGCLASS=A</span>
+      <span>IBM 029 KEYPUNCH · DECK 01</span>
+    </div>
+    <div class="holes-strip" aria-hidden="true"><span class="lit">▮ ▮▮ ▮  ▮▮▮ ▮  ▮▮ ▮</span> ▮  ▮ ▮▮  ▮ ▮  ▮▮ ▮  <span class="lit">▮▮ ▮  ▮ ▮▮</span> ▮  ▮ ▮▮</div>
+    <div class="deck-title">
+      <h1>maykstuff</h1>
+      <span class="meta">80-COL HOLLERITH ARCHIVE · DO NOT FOLD, SPINDLE OR MUTILATE</span>
+    </div>
+    <div class="col-ruler" aria-hidden="true">12345678901234567890123456789012345678901234567890123456789012345678901234567890</div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <a class="kofi-card" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+    <span class="jcl">//KOFI   EXEC PGM=TIPWHYTE,PARM='1 COFFEE c[_]'</span>
+    <span class="sub">/* PUNCH HERE TO FUND NEXT BATCH JOB AT KO-FI.COM */</span>
+  </a>
+
+  <footer>//EOF &nbsp;·&nbsp; [LIVE] ONLINE DECK &nbsp;·&nbsp; [SRC] SOURCE TAPE &nbsp;·&nbsp; [WIP] KEYPUNCHING</footer>
+</main>
+
+<script src="data.js"></script>
+<script src="intro.js"></script>
+<script>
+MAYK.render({
+  mount: '#grid',
+  category: function(c, x){
+    var seq = '00' + (x.ci + 1) + '0';
+    var pat = '';
+    for(var i = 0; i < 24; i++){
+      pat += ((i * 7 + x.ci * 5) % 3 === 0) ? '<b>▮</b>' : '·';
+    }
+    return '<section class="punch-card">'
+      +'<div class="card-top"><span>//'+MAYK.esc(c.name)+'</span><span class="seq">SEQ '+seq+'</span></div>'
+      +'<div class="card-punches" aria-hidden="true">'+pat+'</div>'
+      +x.itemsHTML+'</section>';
+  },
+  item: function(it, x){
+    var rowNum = MAYK.pad2(x.ii);
+    return '<a class="zone-row'+(it.sub?' zone-row--sub':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+      +'<span class="zone-top">'
+      +'<span class="rnum">'+rowNum+'</span>'
+      +'<span class="punch" aria-hidden="true">▮▮</span>'
+      +'<span class="nm">'+MAYK.esc(it.name)+'</span>'
+      +'<span class="bdg bdg--'+it.badge+'">['+it.badge+']</span>'
+      +'</span>'
+      +'<p class="zone-desc">'+MAYK.esc(it.desc)+'</p></a>';
+  }
+});
+
+MAYK.intro({
+  stagger: ['.punch-card, .kofi-card'],
+  duration: 540
+});
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.07, ALIVE='▮', DEAD=' ', INTERVAL=580, RESEED=540;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

@@ -3,10 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Projects and experiments by Whyte Erminae, as a Workbench screen — tools, ASCII art, plugins and standalone software.">
+<meta name="description" content="Projects and experiments by Whyte Erminae, as a Workbench screen — tools, ASCII art, audio and standalone software.">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0055aa">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   /* Kickstart 1.3 shipped four colours and asked no further questions. */
@@ -98,6 +106,35 @@
   footer{ position:relative; z-index:1; max-width:1160px; margin:1.6rem auto 0;
           padding:0 .6ch; font-size:.72rem; opacity:.82; }
   footer b{ color:var(--orange); }
+
+  /* ── Amiga Workbench 1.3 drawer-open boot intro ── */
+  html.intro .screenbar,
+  html.intro .win,
+  html.intro .req,
+  html.intro footer{ opacity:0; }
+  html.intro-run .screenbar{
+    animation:wb-bar .14s steps(4) both;
+  }
+  html.intro-run .win{
+    transform-origin:12% 8%;
+    animation:wb-win .26s steps(4) calc(60ms + var(--i,0)*38ms) both;
+  }
+  html.intro-run .req{
+    transform-origin:center top;
+    animation:wb-win .22s steps(3) 340ms both;
+  }
+  html.intro-run footer{
+    animation:wb-bar .16s steps(2) 400ms both;
+  }
+  @keyframes wb-bar{
+    from{ opacity:0; transform:translateY(-100%); }
+    to{ opacity:1; transform:none; }
+  }
+  @keyframes wb-win{
+    0%{ opacity:0; transform:scale(.18,.08); }
+    35%{ opacity:1; transform:scale(.55,.32); }
+    100%{ opacity:1; transform:scale(1,1); }
+  }
 </style>
 </head>
 <body>
@@ -126,6 +163,7 @@
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){
@@ -143,6 +181,11 @@ MAYK.render({ mount:'#grid',
 
 /* The screen bar counts what is actually on the Workbench. */
 document.getElementById('icons').textContent = MAYK.counts().items + ' icons';
+
+MAYK.intro({
+  duration: 560,
+  stagger: ['.win']
+});
 </script>
 <script>
 (function(){

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Projects and experiments by Whyte Erminae — plotted on a Tektronix 4014 vector storage oscilloscope.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0f0a">
+<title>maykstuff — Tek 4014 Vector Scope</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#0c100a; --fg:#7b8c5a; --glow:#a4c94b; --beam:#c8f064;
+    --dim:#2d3620; --grid:rgba(123,140,90,.16); --subgrid:rgba(123,140,90,.08);
+    --panel:rgba(16,21,13,.82);
+  }
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+    min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+
+  /* Etched oscilloscope graticule + subtle Life field */
+  .graticule{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px),
+      linear-gradient(to right, var(--subgrid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--subgrid) 1px, transparent 1px),
+      radial-gradient(ellipse at center, rgba(164,201,75,.06) 0%, rgba(0,0,0,.65) 100%);
+    background-size:120px 120px, 120px 120px, 24px 24px, 24px 24px, 100% 100%;
+    background-position:center center;
+  }
+  #life{
+    position:fixed; inset:0; margin:0; z-index:0; color:var(--fg); opacity:.07;
+    font-size:15px; line-height:16px; white-space:pre; overflow:hidden;
+    pointer-events:none; user-select:none;
+  }
+
+  main{
+    position:relative; z-index:1; max-width:1100px; margin:0 auto;
+    padding:clamp(1.2rem,3.5vw,2.6rem) clamp(1rem,3vw,2rem);
+  }
+
+  /* Top Scope Telemetry Bar */
+  .scope-bar{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem 1.2rem;
+    border:1px solid var(--fg); background:var(--panel);
+    padding:.45rem .9rem; font-size:.74rem; letter-spacing:.12em; text-transform:uppercase;
+    box-shadow:0 0 18px rgba(164,201,75,.12), inset 0 0 14px rgba(164,201,75,.06);
+  }
+  .scope-bar .ch{ color:var(--glow); font-weight:700; text-shadow:0 0 8px rgba(164,201,75,.5); }
+  .scope-bar .sep{ color:var(--dim); }
+
+  /* Vector Waveform Header Panel */
+  .trace-head{
+    position:relative; margin:1rem 0 1.4rem;
+    border:1px solid var(--fg); background:var(--panel);
+    padding:1rem 1.2rem .85rem; overflow:hidden;
+    display:grid; grid-template-columns:1fr auto; align-items:center; gap:1rem;
+  }
+  .trace-title h1{
+    margin:0; font-size:clamp(1.35rem,3.5vw,2.1rem); letter-spacing:.26em;
+    text-transform:uppercase; color:var(--glow);
+    text-shadow:0 0 14px rgba(164,201,75,.55), 0 0 3px var(--beam);
+  }
+  .trace-title p{
+    margin:.4rem 0 0; font-size:.76rem; letter-spacing:.12em; opacity:.68; text-transform:uppercase;
+  }
+  .lissajous{
+    width:180px; height:64px; border:1px solid var(--dim); background:#080b07;
+    display:block; box-shadow:inset 0 0 12px rgba(164,201,75,.12);
+  }
+
+  /* Vector Category Modules */
+  .grid{
+    display:grid; gap:1.3rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    align-items:start;
+  }
+  .vec-box{
+    position:relative; border:1px solid var(--fg); background:var(--panel);
+    padding:.85rem 1.1rem 1.1rem;
+    box-shadow:0 0 16px rgba(164,201,75,.07), inset 0 0 20px rgba(164,201,75,.04);
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .vec-box:hover{
+    border-color:var(--glow);
+    box-shadow:0 0 22px rgba(164,201,75,.18), inset 0 0 22px rgba(164,201,75,.07);
+  }
+  /* Crosshair corner ticks */
+  .vec-box::before, .vec-box::after{
+    content:"+"; position:absolute; color:var(--glow); font-size:.85rem; line-height:1;
+    pointer-events:none; text-shadow:0 0 6px var(--glow);
+  }
+  .vec-box::before{ top:4px; right:6px; }
+  .vec-box::after{ bottom:4px; right:6px; }
+
+  .vec-hdr{
+    display:flex; justify-content:space-between; align-items:baseline;
+    border-bottom:1px dashed var(--dim); padding-bottom:.45rem; margin:0 0 .75rem;
+    padding-right:1.1rem;
+  }
+  .vec-hdr h2{
+    margin:0; font-size:.82rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--glow); text-shadow:0 0 8px rgba(164,201,75,.45);
+  }
+  .vec-hdr .coord{ font-size:.66rem; opacity:.55; letter-spacing:.08em; }
+
+  .sig{
+    display:block; text-decoration:none; color:inherit;
+    padding:.35rem .3rem; border-left:2px solid transparent;
+    transition:border-color .15s, background .15s;
+  }
+  .sig--sub{ margin-left:1.1rem; border-left:1px dashed var(--dim); padding-left:.55rem; }
+  .sig-top{ display:flex; align-items:baseline; gap:.5rem; }
+  .sig .nm{
+    font-weight:700; color:var(--fg); transition:color .15s, text-shadow .15s;
+  }
+  .sig .nm::before{ content:"∿ "; color:var(--glow); opacity:.75; }
+  .sig--sub .nm::before{ content:"└ "; color:var(--fg); opacity:.6; }
+  .sig .bdg{
+    margin-left:auto; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase;
+    padding:.05rem .35rem; border:1px solid var(--dim);
+  }
+  .sig .bdg--live{ color:var(--glow); border-color:var(--glow); box-shadow:0 0 6px rgba(164,201,75,.25); }
+  .sig .bdg--wip{ opacity:.45; }
+  .sig .desc{
+    margin:.18rem 0 0 1.35rem; font-size:.76rem; opacity:.58; line-height:1.4;
+  }
+  .sig:hover, .sig:focus-visible{
+    border-left-color:var(--glow); background:rgba(164,201,75,.06); outline:none;
+  }
+  .sig:hover .nm, .sig:focus-visible .nm{
+    color:var(--beam); text-shadow:0 0 10px rgba(164,201,75,.75);
+  }
+
+  /* Ko-fi Calibration Pulse */
+  .kofi{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.6rem;
+    margin:1.6rem auto 0; max-width:680px; padding:.75rem 1.2rem;
+    border:1px solid var(--glow); background:var(--panel);
+    text-decoration:none; color:var(--fg); font-size:.8rem; letter-spacing:.1em;
+    box-shadow:0 0 18px rgba(164,201,75,.12); transition:box-shadow .2s, background .2s;
+  }
+  .kofi b{ color:var(--glow); text-shadow:0 0 8px rgba(164,201,75,.5); }
+  .kofi .pulse{ color:var(--beam); font-weight:700; }
+  .kofi:hover, .kofi:focus-visible{
+    background:rgba(164,201,75,.09); box-shadow:0 0 26px rgba(164,201,75,.28); outline:none;
+  }
+
+  footer{
+    margin-top:1.5rem; text-align:center; font-size:.72rem; opacity:.55; letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+
+  /* ── Tek 4014 storage-tube flood-gun & vector trace intro ── */
+  html.intro .vec-box, html.intro .kofi, html.intro footer{ opacity:0 }
+  html.intro-run main{ animation:flood-gun .52s ease-out both }
+  html.intro-run .trace-head{ animation:vec-sweep .28s ease-out both }
+  html.intro-run .vec-box{
+    animation:vec-plot .24s cubic-bezier(.16,1,.3,1) calc(120ms + var(--i,0)*70ms) forwards;
+  }
+  html.intro-run .kofi, html.intro-run footer{
+    animation:vec-plot .2s ease-out 420ms forwards;
+  }
+  @keyframes flood-gun{
+    0%{ filter:brightness(3.8) contrast(1.4); }
+    35%{ filter:brightness(1.9); }
+    100%{ filter:none; }
+  }
+  @keyframes vec-sweep{
+    from{ clip-path:inset(0 100% 0 0); filter:brightness(2.5); }
+    to{ clip-path:inset(0 0 0 0); filter:none; }
+  }
+  @keyframes vec-plot{
+    0%{ opacity:1; clip-path:inset(0 100% 100% 0); filter:brightness(2.8); }
+    60%{ opacity:1; clip-path:inset(0 0 85% 0); filter:brightness(2); }
+    100%{ opacity:1; clip-path:inset(0 0 0 0); filter:none; }
+  }
+
+  @media (max-width:560px){
+    .trace-head{ grid-template-columns:1fr; }
+    .lissajous{ width:100%; }
+  }
+</style>
+</head>
+<body>
+<div class="graticule" aria-hidden="true"></div>
+<pre id="life" aria-hidden="true"></pre>
+
+<main>
+  <div class="scope-bar">
+    <span><span class="ch">TEK 4014-1</span> <span class="sep">·</span> STORAGE CRT</span>
+    <span>CH1: <span class="ch">5V/DIV</span> &nbsp; TIME: <span class="ch">2ms/DIV</span></span>
+    <span>MODE: <span class="ch">XY VECTOR</span> &nbsp; TRIG: <span class="ch">LOCKED</span></span>
+  </div>
+
+  <header class="trace-head">
+    <div class="trace-title">
+      <h1>maykstuff</h1>
+      <p>vector plot archive · operator: whyte erminae · persistence: high</p>
+    </div>
+    <canvas class="lissajous" id="scope-canvas" width="180" height="64" aria-hidden="true"></canvas>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <a class="kofi" href="https://ko-fi.com/T5F122USRI" target="_blank" rel="noopener">
+    <span><span class="pulse">⎍ CAL 1.0V</span> · INJECT DC BIAS TO MAINTAIN PHOSPHOR CHARGE</span>
+    <b>[ c[_] BUY WHYTE A KO-FI ]</b>
+  </a>
+
+  <footer>BEAM INTENSITY: NOMINAL &nbsp;·&nbsp; [LIVE] ACTIVE TRACE &nbsp;·&nbsp; [SRC] SCHEMATIC &nbsp;·&nbsp; [WIP] PROTOTYPE</footer>
+</main>
+
+<script src="data.js"></script>
+<script src="intro.js"></script>
+<script>
+MAYK.render({
+  mount: '#grid',
+  category: function(c, x){
+    var xCoord = MAYK.pad2((x.ci + 1) * 12) + '0';
+    var yCoord = MAYK.pad2((x.ci + 1) * 8) + '4';
+    return '<section class="vec-box"><div class="vec-hdr">'
+      +'<h2>'+MAYK.esc(c.name)+'</h2>'
+      +'<span class="coord">X:'+xCoord+' Y:'+yCoord+'</span>'
+      +'</div>'+x.itemsHTML+'</section>';
+  },
+  item: function(it){
+    return '<a class="sig'+(it.sub?' sig--sub':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+      +'<span class="sig-top"><span class="nm">'+MAYK.esc(it.name)+'</span>'
+      +'<span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></span>'
+      +'<p class="desc">'+MAYK.esc(it.desc)+'</p></a>';
+  }
+});
+
+MAYK.intro({
+  stagger: ['.vec-box'],
+  duration: 560
+});
+
+/* Harmonic Vector Trace Canvas */
+(function(){
+  var cv = document.getElementById('scope-canvas');
+  if(!cv || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var phase = 0;
+  function draw(){
+    ctx.fillStyle = 'rgba(8, 11, 7, 0.32)';
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.strokeStyle = 'rgba(123, 140, 90, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 32); ctx.lineTo(180, 32);
+    ctx.moveTo(90, 0); ctx.lineTo(90, 64);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#a4c94b';
+    ctx.shadowColor = '#a4c94b';
+    ctx.shadowBlur = 6;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for(var x = 0; x < 180; x++){
+      var t = (x / 180) * Math.PI * 4;
+      var y = 32 + Math.sin(t + phase) * 16 * Math.cos(t * 0.5 - phase * 0.6);
+      if(x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    phase += 0.08;
+  }
+  draw();
+  if(!reduce) setInterval(draw, 50);
+})();
+</script>
+<script>
+(function(){
+  var pre=document.getElementById('life'); if(!pre) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cols,rows,grid,nxt,cw,ch,tick=0;
+  var DENSITY=0.07, ALIVE='·', DEAD=' ', INTERVAL=580, RESEED=540;
+  function measure(){ var cs=getComputedStyle(pre), s=document.createElement('span');
+    s.style.cssText='position:absolute;visibility:hidden;white-space:pre';
+    s.style.fontFamily=cs.fontFamily; s.style.fontSize=cs.fontSize; s.style.letterSpacing=cs.letterSpacing;
+    s.textContent='##########'; document.body.appendChild(s);
+    cw=s.getBoundingClientRect().width/10; document.body.removeChild(s);
+    ch=parseFloat(cs.lineHeight)||16; if(!cw||cw<1) cw=9; }
+  function seed(){ grid=new Uint8Array(cols*rows);
+    for(var i=0;i<grid.length;i++) grid[i]=Math.random()<DENSITY?1:0; nxt=new Uint8Array(cols*rows); }
+  function setup(){ measure(); cols=Math.max(1,Math.ceil(window.innerWidth/cw)+1);
+    rows=Math.max(1,Math.ceil(window.innerHeight/ch)+1); seed(); render(); }
+  function step(){ for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){ var n=0;
+      for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){ if(!dx&&!dy)continue;
+        n+=grid[((y+dy+rows)%rows)*cols+((x+dx+cols)%cols)]; }
+      var a=grid[y*cols+x]; nxt[y*cols+x]=((a&&(n===2||n===3))||(!a&&n===3))?1:0; }
+    var t=grid; grid=nxt; nxt=t; }
+  function render(){ var out='',i=0; for(var y=0;y<rows;y++){ var l='';
+      for(var x=0;x<cols;x++) l+=grid[i++]?ALIVE:DEAD; out+=l+'\n'; } pre.textContent=out; }
+  function loop(){ step(); render(); if(++tick%RESEED===0) seed(); }
+  setup(); var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(setup,250); });
+  if(!reduce) setInterval(loop,INTERVAL);
+})();
+</script>
+</body>
+</html>

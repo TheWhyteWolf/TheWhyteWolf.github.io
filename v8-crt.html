@@ -7,6 +7,14 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0c0d0b">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{ --bg:#101210; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --line:rgba(123,140,90,.5); }
@@ -31,6 +39,22 @@
   @keyframes flick{ 0%,100%{opacity:1} 48%{opacity:.985} 50%{opacity:.955} 52%{opacity:.985} }
   @media (prefers-reduced-motion: reduce){ .scr{ animation:none } }
 
+  /* ── CRT power-on intro ── */
+  html.intro .boot>div, html.intro #grid, html.intro .kofi, html.intro .status{ opacity:0 }
+  html.intro-run .scr, html.intro-run #life{
+    animation:pwr .3s ease-out both, flick 5s .3s ease-in-out infinite;
+    transform-origin:50% 50%;
+  }
+  @keyframes pwr{
+    0%{ transform:scaleY(.003) scaleX(.25); filter:brightness(5); }
+    35%{ transform:scaleY(.006) scaleX(1); filter:brightness(4); }
+    75%{ transform:scaleY(1) scaleX(1); filter:brightness(1.6); }
+    100%{ transform:none; filter:none; }
+  }
+  html.intro-run .boot>div{ animation:crt-on 0s calc(290ms + var(--i)*75ms) forwards }
+  html.intro-run #grid, html.intro-run .kofi, html.intro-run .status{ animation:crt-on .12s 480ms forwards }
+  @keyframes crt-on{ to{ opacity:1 } }
+
   .boot{ margin:0 0 1.7rem; font-size:.85rem; line-height:1.75; }
   .boot .hi{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
   .boot .rdy{ font-weight:700; letter-spacing:.05em; }
@@ -47,17 +71,16 @@
   .panel h2::before{ content:"◧ "; opacity:.6; }
 
   .row{ display:block; text-decoration:none; color:inherit; padding:.28rem 0; }
+  .row--sub{ padding-left:1.3rem; }
   .row .top{ display:flex; align-items:baseline; gap:.5rem; }
   .row .nm{ font-weight:700; }
   .row .nm::before{ content:"» "; color:var(--glow); opacity:.65; }
+  .row--sub .nm::before{ content:"└ "; color:var(--dim); opacity:1; }
   .row .bdg{ margin-left:auto; font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
   .row .bdg--live{ color:var(--glow); opacity:1; } .row .bdg--wip{ opacity:.45; }
   .row .desc{ margin:.14rem 0 0 1.1rem; font-size:.77rem; opacity:.58; line-height:1.4; }
   .row:hover .nm,.row:focus-visible .nm{ color:var(--glow); text-shadow:0 0 12px rgba(164,201,75,.75); }
   .row:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
-  .row.part{ padding-left:2ch; }
-  .row.part .nm{ font-weight:400; }
-  .row.part .nm::before{ content:"└ "; opacity:.55; }
 
   /* ko-fi support — load from device 8 */
   .kofi{ display:block; margin:1.8rem 0 0; text-decoration:none; color:var(--fg);
@@ -95,12 +118,18 @@
 </div>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 MAYK.render({ mount:'#grid',
   category:function(c,x){ return '<section class="panel"><h2>'+MAYK.esc(c.name)+'</h2>'+x.itemsHTML+'</section>'; },
-  item:function(it){ return '<a class="row'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+  item:function(it){ return '<a class="row'+(it.sub?' row--sub':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
     +'<span class="top"><span class="nm">'+MAYK.esc(it.name)+'</span><span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></span>'
     +'<span class="desc">'+MAYK.esc(it.desc)+'</span></a>'; }
+});
+
+MAYK.intro({
+  stagger: ['.boot>div'],
+  duration: 580
 });
 </script>
 <script>

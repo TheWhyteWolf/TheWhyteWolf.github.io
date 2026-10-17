@@ -7,6 +7,14 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{ --bg:#121412; --fg:#7b8c5a; --glow:#a4c94b; --dim:#39412b; --panel:#191d14; }
@@ -36,17 +44,17 @@
   .sec:first-of-type{ margin-top:.4rem; }
 
   .ln{ display:block; text-decoration:none; color:inherit; margin-top:.7rem; }
+  .ln--sub{ padding-left:2.2ch; margin-top:.45rem; }
   .ln .mk{ color:var(--glow); }
+  .ln--sub .mk{ color:var(--dim); }
   .ln .nm{ font-weight:700; transition:color .2s,text-shadow .2s; }
   .ln .bdg{ font-size:.68rem; opacity:.7; letter-spacing:.06em; }
   .ln .bdg::before{content:"["} .ln .bdg::after{content:"]"}
   .ln .bdg--live{ color:var(--glow); opacity:1; } .ln .bdg--wip{ opacity:.45; }
   .ln:hover .nm,.ln:focus-visible .nm{ color:var(--glow); text-shadow:0 0 9px rgba(164,201,75,.5); }
   .ln:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
-  .ln.part{ padding-left:2.5ch; }
-  .ln.part .nm{ font-weight:400; }
-  .ds.part{ padding-left:2.5ch; }
   .ds{ margin:.15rem 0 0; padding-left:2.2ch; opacity:.55; font-size:.8rem; line-height:1.45; }
+  .ds--sub{ padding-left:4.4ch; }
 
   /* ko-fi support — wire transfer */
   .kofi .nm{ color:var(--glow); letter-spacing:.06em; text-shadow:0 0 8px rgba(164,201,75,.3); }
@@ -56,6 +64,23 @@
   .eot .cur{ display:inline-block; width:.6ch; background:var(--glow); color:transparent; animation:blink 1.1s steps(1) infinite; }
   @keyframes blink{ 50%{opacity:0} }
   @media (prefers-reduced-motion: reduce){ .eot .cur{ animation:none } }
+
+  /* ── teletype banner print intro ── */
+  .banner .r{ display:inline-block }
+  html.intro .subhead, html.intro #content, html.intro #content ~ *{ opacity:0 }
+  html.intro-run .tape{ animation:tape-adv .52s linear }
+  html.intro-run .banner .r{
+    animation:prt .09s steps(12) both;
+    animation-delay:calc(var(--i)*70ms);
+  }
+  html.intro-run .banner pre{ animation:cr .06s steps(1) .37s }
+  html.intro-run .subhead, html.intro-run #content, html.intro-run #content ~ *{
+    animation:tty-on .14s .4s forwards;
+  }
+  @keyframes prt{ from{ clip-path:inset(0 100% 0 0) } to{ clip-path:inset(0) } }
+  @keyframes cr{ 0%{ transform:translateX(4px) } 50%{ transform:translateX(-2px) } }
+  @keyframes tape-adv{ from{ background-position-x:-90px } to{ background-position-x:0 } }
+  @keyframes tty-on{ to{ opacity:1 } }
 </style>
 </head>
 <body>
@@ -66,11 +91,11 @@
     <div class="tape" aria-hidden="true"></div>
     <div class="pad">
 
-      <div class="banner"><pre aria-label="maykstuff">#   #   ###   #   #  #   #   ####  #####  #   #  #####  #####
-## ##  #   #   # #   #  #   #        #    #   #  #      #
-# # #  #####    #    ###     ###     #    #   #  ###    ###
-#   #  #   #    #    #  #       #    #    #   #  #      #
-#   #  #   #    #    #   #  ####     #     ###   #      #</pre></div>
+      <div class="banner"><pre aria-label="maykstuff"><span class="r" style="--i:0">#   #   ###   #   #  #   #   ####  #####  #   #  #####  #####</span>
+<span class="r" style="--i:1">## ##  #   #   # #   #  #   #        #    #   #  #      #    </span>
+<span class="r" style="--i:2"># # #  #####    #    ###     ###     #    #   #  ###    ###  </span>
+<span class="r" style="--i:3">#   #  #   #    #    #  #       #    #    #   #  #      #    </span>
+<span class="r" style="--i:4">#   #  #   #    #    #   #  ####     #     ###   #      #    </span></pre></div>
       <p class="subhead">Whyte Erminae · Teletype Model 33 ASR · <span class="rdy">RDY</span></p>
 
       <div id="content"></div>
@@ -88,14 +113,16 @@
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
 MAYK.render({ mount:'#content',
   category:function(c,x){ return '<h2 class="sec"><span class="br">&gt;&gt;&gt;</span> '+MAYK.esc(c.name)+'</h2>'+x.itemsHTML; },
-  item:function(it){ var s=it.sub?' part':'';
-    return '<a class="ln'+s+'" href="'+it.url+'" target="_blank" rel="noopener">'
-    +'<span class="mk">'+(it.sub?'&gt;':'&gt;&gt;')+'</span> <span class="nm">'+MAYK.esc(it.name)+'</span> <span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></a>'
-    +'<p class="ds'+s+'">'+MAYK.esc(it.desc)+'</p>'; }
+  item:function(it){ return '<a class="ln'+(it.sub?' ln--sub':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+    +'<span class="mk">'+(it.sub?'└&gt;':'&gt;&gt;')+'</span> <span class="nm">'+MAYK.esc(it.name)+'</span> <span class="bdg bdg--'+it.badge+'">'+it.badge+'</span></a>'
+    +'<p class="ds'+(it.sub?' ds--sub':'')+'">'+MAYK.esc(it.desc)+'</p>'; }
 });
+
+MAYK.intro({ duration: 550 });
 </script>
 <script>
 (function(){

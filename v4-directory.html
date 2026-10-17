@@ -7,6 +7,14 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
 <title>maykstuff — Whyte Erminae</title>
+<script>
+  try{
+    if((/(?:^\?|&)intro=1(?:&|$)/.test(location.search) || !sessionStorage.getItem('mayk-intro:'+location.pathname)) &&
+       !matchMedia('(prefers-reduced-motion: reduce)').matches){
+      document.documentElement.classList.add('intro');
+    }
+  }catch(e){}
+</script>
 <style>
   *{box-sizing:border-box}
   :root{
@@ -56,8 +64,6 @@
   .ext--src{ color:var(--fg); }
   .ext--wip{ color:var(--fg); opacity:.45; }
   .cmt{ flex:1 1 100%; margin:.15rem 0 0 2.5ch; font-size:.76rem; opacity:.5; line-height:1.4; }
-  .node.part .name{ font-weight:400; }
-  .node.part .cmt{ margin-left:5.5ch; }
   .cmt::before{ content:"# "; }
   .node:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
 
@@ -72,6 +78,15 @@
   .kofi:hover,.kofi:focus-visible{ text-decoration:underline; text-shadow:0 0 15px rgba(164,201,75,.65); }
   .kofi:focus-visible{ outline:1px solid var(--glow); outline-offset:2px; }
   .kofi-sub{ margin:0; }
+
+  /* ── terminal scroll intro ── */
+  html.intro main{ overflow:clip }
+  html.intro main>*:not(.prompt:first-child){ opacity:0 }
+  html.intro-run main>*:not(.prompt:first-child){
+    opacity:1;
+    animation:tscroll .42s steps(12) both;
+  }
+  @keyframes tscroll{ from{ transform:translateY(calc(1.7rem*12)); } to{ transform:none; } }
 </style>
 </head>
 <body>
@@ -79,7 +94,7 @@
 
 <main>
   <p class="prompt"><span class="user">whyte@erminae</span>:<span class="pwd">~/maykstuff</span><span class="dollar">$</span> ls -R<span class="cursor">_</span></p>
-  <p class="prompt-sub" id="tally"># the archive of Whyte Erminae</p>
+  <p class="prompt-sub" id="dir-counts"># the archive of Whyte Erminae — 7 directories, 33 files</p>
 
   <div class="grid" id="grid"></div>
 
@@ -90,16 +105,12 @@
 </main>
 
 <script src="data.js"></script>
+<script src="intro.js"></script>
 <script>
-MAYK.render({ mount:'#grid',
-  category:function(c,x){ return '<section class="dir"><div class="path">./'+MAYK.slug(c.name)+'/</div><div class="tree">'+x.itemsHTML+'</div></section>'; },
-  item:function(it,x){ return '<a class="node'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
-    +'<span class="tw">'+twig(it,x)+'</span><span class="name">'+MAYK.esc(it.file||it.name)+'</span>'
-    +'<span class="ext ext--'+it.badge+'">.'+it.badge+'</span><span class="cmt">'+MAYK.esc(it.desc)+'</span></a>'; }
-});
-
-/* ls -R draws the real shape: a `sub` item hangs off the entry above it,
-   so the branch glyphs have to know about parents, not just position. */
+(function(){
+  var c = MAYK.counts(), el = document.getElementById('dir-counts');
+  if(el) el.textContent = '# the archive of Whyte Erminae — '+c.categories+' directories, '+c.items+' files';
+})();
 function twig(it, x){
   var items = MAYK.categories[x.ci].items;
   function moreTopAfter(i){
@@ -107,17 +118,20 @@ function twig(it, x){
     return false;
   }
   if(!it.sub) return moreTopAfter(x.ii) ? '├─' : '└─';
-  var j = x.ii - 1; while(j >= 0 && items[j].sub) j--;      // the parent
+  var j = x.ii - 1; while(j >= 0 && items[j].sub) j--;
   var lastSub = (x.ii === items.length-1) || !items[x.ii+1].sub;
   return (j >= 0 && !moreTopAfter(j) ? '   ' : '│  ') + (lastSub ? '└─' : '├─');
 }
+MAYK.render({ mount:'#grid',
+  category:function(c,x){ return '<section class="dir"><div class="path">./'+MAYK.slug(c.name)+'/</div><div class="tree">'+x.itemsHTML+'</div></section>'; },
+  item:function(it,x){
+    return '<a class="node'+(it.sub?' part':'')+'" href="'+it.url+'" target="_blank" rel="noopener">'
+      +'<span class="tw">'+twig(it,x)+'</span><span class="name">'+MAYK.esc(it.file||it.name)+'</span>'
+      +'<span class="ext ext--'+it.badge+'">.'+it.badge+'</span><span class="cmt"'+(it.sub?' style="margin-left:5.5ch"':'')+'>'+MAYK.esc(it.desc)+'</span></a>';
+  }
+});
 
-/* The header counts what is actually listed. */
-(function(){
-  var n = MAYK.counts();
-  document.getElementById('tally').textContent =
-    '# the archive of Whyte Erminae — '+n.categories+' directories, '+n.items+' files';
-})();
+MAYK.intro({ duration: 450 });
 </script>
 <script>
 (function(){
