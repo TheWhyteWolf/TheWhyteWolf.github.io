@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────
-   maykstuff — SINGLE SOURCE OF TRUTH for every landing-page design.
+   allthemalware — SINGLE SOURCE OF TRUTH for every landing-page design.
    Edit an item's `desc` (or name / url / badge) here once and all
    designs update. `file` is an optional filesystem-style name used
    only by the Directory design (v4).
@@ -8,7 +8,7 @@
    above it — each design indents or nests it.
    ───────────────────────────────────────────────────────────── */
 window.MAYK = {
-  brand: "maykstuff",
+  brand: "allthemalware",
   tagline: "the archive of Whyte Erminae",
   categories: [
     { name: "WebApps", items: [

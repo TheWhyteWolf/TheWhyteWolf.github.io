@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────
-   maykstuff — demoscene & arcade attract-mode portfolio reel
+   allthemalware — demoscene & arcade attract-mode portfolio reel
    Cycles through the portfolio's retro visual eras (v2..v15)
    while showcasing browser-ready software via hybrid live iframes
    + 60fps procedural canvas/ASCII simulations + a native/CLI
@@ -440,7 +440,7 @@
     overlayEl.className = ACTS[0].skin;
     overlayEl.setAttribute("role", "dialog");
     overlayEl.setAttribute("aria-modal", "true");
-    overlayEl.setAttribute("aria-label", "maykstuff Demoscene Portfolio Reel");
+    overlayEl.setAttribute("aria-label", "allthemalware Demoscene Portfolio Reel");
 
     var segsHtml = ACTS.map(function(a, idx){
       return '<div class="d-seg" data-idx="'+idx+'" title="Jump to Act '+a.num+': '+a.title+'">'
@@ -1043,7 +1043,7 @@
     return pts;
   })();
 
-  var scrollerMsg = "   *** MAYKSTUFF · THE ARCHIVE OF WHYTE ERMINAE · LIFEBRANCH NIRI DESKTOP · FURNACE CHIPRUNS · NOITEYES CIPHER SOLVER · SLEEVE-NOTE · HOOTRIP · ASCII_TUBE ***   ";
+  var scrollerMsg = "   *** ALLTHEMALWARE · THE ARCHIVE OF WHYTE ERMINAE · LIFEBRANCH NIRI DESKTOP · FURNACE CHIPRUNS · NOITEYES CIPHER SOLVER · SLEEVE-NOTE · HOOTRIP · ASCII_TUBE ***   ";
   function renderBlitz(now, elapsed, force){
     var w = canvasEl.width, h = canvasEl.height;
     ctx2d.fillStyle = "#08060d";

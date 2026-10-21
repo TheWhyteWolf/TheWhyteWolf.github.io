@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────
-   maykstuff — load-in intro engine
+   allthemalware — load-in intro engine
    Handles session gating, stagger index calculation, click/key
    skipping, reduced motion detection, and failsafe termination.
    Pass ?intro=1 in the URL to force-replay the intro at any time.
