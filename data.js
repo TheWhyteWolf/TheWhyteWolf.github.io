@@ -14,7 +14,7 @@ window.MAYK = {
     { name: "WebApps", items: [
       { name: "Oblique Strategies", file: "oblique-strategies",
         url: "https://allthemalware.github.io/Oblique/", badge: "live",
-        desc: "Eno & Schmidt's deck (plus 73 of my own) for when you're stuck." },
+        desc: "Eno & Schmidt's deck (plus 102 of my own) for when you're stuck." },
       { name: "MiNERVA FM", file: "minerva-fm",
         url: "https://allthemalware.github.io/MiNERVA-FM-Local/", badge: "live",
         desc: "Audio-reactive CRT chiptune player — bring your own SID/SPC/VGM files." },
