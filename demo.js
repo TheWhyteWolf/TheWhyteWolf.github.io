@@ -31,7 +31,7 @@
       skin: "skin-v2",
       skinName: "v2 · SunVox ASCII Frames",
       skinCode: "TUI/BOX-DRAW",
-      desc: "Brian Eno & Peter Schmidt's deck (plus 43 original strategies) in a SunVox TUI frame with Conway's Game of Life."
+      desc: "Brian Eno & Peter Schmidt's deck (plus 73 original strategies) in a SunVox TUI frame with Conway's Game of Life."
     },
     {
       id: "minerva",
