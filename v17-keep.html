@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Explore the archive of Whyte Erminae as an isometric keep.">
+  <title>allthemalware — The Keep</title>
+  <script>
+    try {
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+          !/(?:^\?|&)demo=1(?:&|$)/.test(location.search) &&
+          (/(?:^\?|&)intro=1(?:&|$)/.test(location.search) ||
+           !sessionStorage.getItem('mayk-intro:' + location.pathname))) {
+        document.documentElement.classList.add('intro');
+      }
+    } catch (error) {}
+  </script>
+  <link rel="stylesheet" href="gorecraft/styles.css">
+  <script src="data.js" defer></script>
+  <script src="intro.js" defer></script>
+  <script src="gorecraft/archive.js" defer></script>
+  <script src="demo.js" defer></script>
+</head>
+<body class="keep" data-design="keep">
+  <a class="skip" href="#chamber-projects">Skip to projects</a>
+  <div class="keep-shell">
+    <header class="masthead"><a class="wordmark" href="v17-keep.html">allthemalware<span>_</span></a><span>THE ARCHIVE OF WHYTE ERMINAE</span><a href="https://github.com/allthemalware">GITHUB ↗</a></header>
+    <main>
+      <section class="keep-intro"><div><p class="eyebrow">AN EXPLORABLE COLLECTION OF CODE, ART & NOISE</p><h1>WELCOME TO <span>THE KEEP.</span></h1></div><p><span data-categories></span> chambers.<br> <span data-total></span> things worth opening.</p></section>
+      <div class="keep-layout"><section class="map-panel" aria-labelledby="map-title"><div class="panel-topline"><h2 id="map-title">ARCHIVE / FLOOR 01</h2><span>SELECT A CHAMBER</span></div><div class="world-map"><canvas width="560" height="400" data-art="map" aria-hidden="true"></canvas><div data-map-markers></div><div class="map-compass" aria-hidden="true">N<br>↑</div><p class="map-signature" aria-hidden="true">@ YOU ARE HERE</p></div><div class="map-legend"><span><b>◇</b> CHAMBER</span><span><b>┄</b> PASSAGE</span><span><b>@</b> EXPLORER</span></div><nav class="chamber-nav" aria-label="Archive chambers" data-chamber-nav></nav></section><section class="chamber-panel" aria-label="Selected chamber"><div class="panel-topline"><span>CHAMBER CONTENTS</span><span data-chamber-code></span></div><div class="chamber-intro"><p class="eyebrow" data-chamber-subtitle></p><h2 data-chamber-title></h2><p data-chamber-description></p></div><p class="sr-only" aria-live="polite" data-chamber-status></p><div id="chamber-projects" data-chamber-projects></div><div class="chamber-bottom"><span>CHOOSE A PROJECT TO OPEN IT ↗</span><a href="#full-index">VIEW FULL INDEX ↓</a></div></section></div>
+      <section class="keep-full-index" id="full-index"><div class="archive-heading"><h2>EVERY CHAMBER. EVERY PROJECT.</h2><span>THE COMPLETE ARCHIVE</span></div><label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search all chambers…" aria-label="Search all projects" data-search></label><p class="results-status sr-only" aria-live="polite" data-results></p><div class="codex-grid" data-archive></div><p class="empty" data-empty hidden>No projects found. Try another word.</p></section>
+    </main>
+    <footer class="site-footer"><span>WHYTE ERMINAE / ALLTHEMALWARE</span><span>THERE IS ALWAYS ANOTHER ROOM.</span><a href="https://ko-fi.com/T5F122USRI">REST AT THE CAMPFIRE ↗</a></footer>
+  </div>
+  <noscript><p class="no-script">Enable JavaScript to browse the archive, or <a href="https://github.com/allthemalware?tab=repositories">browse the projects on GitHub</a>.</p></noscript>
+</body>
+</html>

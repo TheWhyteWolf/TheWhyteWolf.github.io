@@ -5,7 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#121412">
-<title>allthemalware</title>
+<title>Whyte Erminae — Systems, Graphics & Audio Engineering</title>
+<meta name="description" content="Whyte Erminae — Systems, graphics, and audio engineering archive. Low-latency Wayland infrastructure, WebGPU geometry, and audio DSP.">
+<meta name="author" content="Whyte Erminae">
+
+<!-- Open Graph / Rich Link Previews (Slack, Discord, iMessage, Twitter/X) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://allthemalware.link/">
+<meta property="og:title" content="Whyte Erminae — Systems, Graphics & Audio Engineering">
+<meta property="og:description" content="Interactive software archive featuring native Wayland desktop infrastructure, WebGPU geometry, audio DSP, and retro computing environments.">
+<meta property="og:image" content="https://allthemalware.link/mockups/previews/crimson.png">
+
+<!-- Twitter / X Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Whyte Erminae — Systems, Graphics & Audio Engineering">
+<meta name="twitter:description" content="Interactive software archive featuring native Wayland desktop infrastructure, WebGPU geometry, audio DSP, and retro computing environments.">
+<meta name="twitter:image" content="https://allthemalware.link/mockups/previews/crimson.png">
 <style>
   html,body{ margin:0; height:100%; background:#121412; }
   .wait{ color:#7b8c5a; font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;
@@ -13,10 +28,11 @@
   .wait a{ color:#a4c94b; }
 </style>
 <script>
-/* ── Day-by-day rotation ──────────────────────────────────────────────
-   One design per calendar day, cycling through this list.
+/* ── Half-hour rotation ───────────────────────────────────────────────
+   One design per 30-minute interval, cycling through this list.
    Add or reorder filenames here to change what appears in the rotation.
-   Preview any entry with ?i=0, ?i=1, …  ·  preview another day with ?o=1 (tomorrow), ?o=-1 (yesterday). */
+   Preview any entry with ?i=0, ?i=1, …  ·  preview another interval with ?o=1 (next), ?o=-1 (previous).
+   Intervals align with :00 and :30 UTC; an open view stays put until the next visit or reload. */
 (function(){
   var ROTATION = [
     'v2-ascii-frames.html',   // 0
@@ -31,17 +47,18 @@
     'v12-workbench.html',     // 9
     'v13-zork.html',          // 10
     'v14-oscilloscope.html',  // 11
-    'v15-punchcard.html'      // 12
+    'v15-punchcard.html',     // 12
+    'v16-crimson.html',       // 13
+    'v17-keep.html'           // 14
   ];
   try{
     var p = new URLSearchParams(location.search);
     var n = ROTATION.length;
     var forced = p.get('i');
     var offset = parseInt(p.get('o'),10); if(isNaN(offset)) offset = 0;
-    var d = new Date();
-    var dayNum = Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()/86400000) + offset;
-    var idx = (forced!==null && forced!=='') ? parseInt(forced,10) : dayNum;
-    if(isNaN(idx)) idx = dayNum;
+    var slot = Math.floor(Date.now()/1800000) + offset;
+    var idx = (forced!==null && forced!=='') ? parseInt(forced,10) : slot;
+    if(isNaN(idx)) idx = slot;
     idx = ((idx % n) + n) % n;
     var qs = [];
     if(p.get('intro') === '1') qs.push('intro=1');
@@ -68,7 +85,9 @@
       <a href="v12-workbench.html">» Amiga Workbench</a><br>
       <a href="v13-zork.html">» Adventure Transcript</a><br>
       <a href="v14-oscilloscope.html">» Vector Oscilloscope</a><br>
-      <a href="v15-punchcard.html">» 80-Column Punch Cards</a>
+      <a href="v15-punchcard.html">» 80-Column Punch Cards</a><br>
+      <a href="v16-crimson.html">» Crimson Codex</a><br>
+      <a href="v17-keep.html">» The Keep</a>
     </p>
   </noscript>
   <p class="wait">connecting… if nothing happens, <a href="v2-ascii-frames.html">enter here</a>.</p>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Projects and experiments by Whyte Erminae — a crimson archive of code, art and sound.">
+  <title>allthemalware — Crimson Codex</title>
+  <script>
+    try {
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches &&
+          !/(?:^\?|&)demo=1(?:&|$)/.test(location.search) &&
+          (/(?:^\?|&)intro=1(?:&|$)/.test(location.search) ||
+           !sessionStorage.getItem('mayk-intro:' + location.pathname))) {
+        document.documentElement.classList.add('intro');
+      }
+    } catch (error) {}
+  </script>
+  <link rel="stylesheet" href="gorecraft/styles.css">
+  <script src="data.js" defer></script>
+  <script src="intro.js" defer></script>
+  <script src="gorecraft/archive.js" defer></script>
+  <script src="demo.js" defer></script>
+</head>
+<body class="crimson" data-design="crimson">
+  <a class="skip" href="#archive">Skip to projects</a>
+  <div class="crimson-shell">
+    <header class="masthead"><a class="wordmark" href="v16-crimson.html">a/m<span>_</span></a><span>THE ARCHIVE OF WHYTE ERMINAE</span><a href="https://github.com/allthemalware">GITHUB ↗</a></header>
+    <main>
+      <section class="crimson-hero" aria-labelledby="brand">
+        <div class="gothic-art" aria-hidden="true"></div>
+        <div class="hero-copy"><p class="eyebrow">INDEPENDENT SOFTWARE · STRANGE EXPERIMENTS</p><h1 id="brand">allthe<br><span>malware</span><span class="title-cross" aria-hidden="true">✦</span></h1><p class="hero-description">Tools for the table. Art for the terminal.<br>Sound from old machines.</p><a class="solid-link" href="#archive">ENTER THE ARCHIVE <span>↓</span></a></div>
+        <div class="hero-stamp" aria-hidden="true"><span>✦</span>CODE / ART / NOISE</div>
+        <div class="hero-caption">I. THE CRIMSON CODEX <span>FOUR INKS. MANY OBSESSIONS.</span></div>
+      </section>
+      <div class="archive-heading" id="archive"><h2>THE COLLECTION</h2><p><span data-total></span> PROJECTS / <span data-categories></span> CHAMBERS</p></div>
+      <div class="archive-tools"><nav class="category-tabs" aria-label="Project categories" data-category-tabs></nav><label class="search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Find a project…" aria-label="Find a project" data-search></label></div>
+      <p class="results-status sr-only" aria-live="polite" data-results></p>
+      <div class="codex-grid" data-archive></div>
+      <p class="empty" data-empty hidden>No projects found. Try another word.</p>
+    </main>
+    <footer class="site-footer"><span>WHYTE ERMINAE / ALLTHEMALWARE</span><span>MADE WITH CURIOSITY. SHARED WITH YOU.</span><a href="https://ko-fi.com/T5F122USRI">FUEL THE NEXT EXPERIMENT ↗</a></footer>
+  </div>
+  <noscript><p class="no-script">Enable JavaScript to browse the archive, or <a href="https://github.com/allthemalware?tab=repositories">browse the projects on GitHub</a>.</p></noscript>
+</body>
+</html>
